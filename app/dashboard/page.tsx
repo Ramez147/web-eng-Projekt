@@ -45,7 +45,7 @@ export default async function Home({ searchParams }: PropsType) {
 
   return (
     <main className="relative overflow-hidden bg-background px-4 py-6 text-foreground md:px-6 md:py-8">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-background to-background" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-br from-primary/10 via-background to-background" />
 
       <section className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
         <div className="col-span-12 rounded-2xl border border-border bg-black p-6 text-card-foreground shadow-sm backdrop-blur">
@@ -81,26 +81,22 @@ export default async function Home({ searchParams }: PropsType) {
           </div>
         </div>
 
-        <div className="col-span-12 grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
-          <PaymentsOverview
-            className="col-span-1 xl:col-span-2"
-            timeFrame={timeFrames.payments_overview}
-          />
+        <PaymentsOverview
+          className="col-span-12 md:col-span-8"
+          timeFrame={timeFrames.payments_overview}
+        />
 
-          <WeeksProfit
-            timeFrame={timeFrames.weeks_profit}
-            className="col-span-1"
-          />
-        </div>
+        <WeeksProfit
+          timeFrame={timeFrames.weeks_profit}
+          className="col-span-12 md:col-span-4"
+        />
 
-        <div className="col-span-12 grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-          <UsedDevices
-            className="col-span-1"
-            timeFrame={timeFrames.used_devices}
-          />
+        <UsedDevices
+          className="col-span-12 md:col-span-6"
+          timeFrame={timeFrames.used_devices}
+        />
 
-          <CampaignVisitors className="col-span-1" />
-        </div>
+        <CampaignVisitors className="col-span-12 md:col-span-6" />
       </section>
     </main>
   );
