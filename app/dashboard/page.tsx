@@ -48,7 +48,7 @@ export default async function Home({ searchParams }: PropsType) {
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-background to-background" />
 
       <section className="grid grid-cols-12 gap-4 md:gap-6 2xl:gap-7.5">
-        <div className="col-span-12 rounded-2xl border border-border bg-emerald-50 dark:bg-emerald-900 p-6 text-card-foreground shadow-sm backdrop-blur">
+        <div className="col-span-12 rounded-2xl border border-border bg-black p-6 text-card-foreground shadow-sm backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             Analytics Workspace
           </p>
