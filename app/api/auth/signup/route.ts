@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ user: data.user, session: data.session });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,40 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Loyalty Engine Platform (Next.js + Supabase)
 
-## Getting Started
+Mandantenfahige B2B-SaaS-Plattform fur Treueprogramme mit API-first Architektur.
 
-First, run the development server:
+## Features
+
+- Multi-Tenancy uber `organizations`
+- Sichere API-Key Authentifizierung (Hash-Speicherung)
+- Punkte vergeben (`earn`) und einlosen (`redeem`)
+- Auto-Erstellung von Kundenprofilen bei erster API-Transaktion
+- Vollstandige Transaktions-Historie fur Analytics
+- Dashboard-Konsole unter `/dashboard`
+
+## Tech Stack
+
+- Next.js App Router
+- Supabase (PostgreSQL)
+- REST Route Handlers unter `/api/v1`
+
+## Setup
+
+1. Environment-Variablen setzen (`.env.local`):
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+2. SQL-Migration in Supabase ausfuhren:
+
+- Datei: `supabase/migrations/20260410_loyalty_engine.sql`
+- Datei: `supabase/migrations/20260410_memberships.sql`
+
+3. Dev-Server starten:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API v1
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### `POST /api/v1/organizations/register`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Registriert ein Unternehmen und gibt den Klartext-API-Key genau einmal zuruck.
 
-## Learn More
+Request:
 
-To learn more about Next.js, take a look at the following resources:
+```json
+{
+	"name": "ACME GmbH",
+	"pointsRatio": 10
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### `PATCH /api/v1/organizations/{organizationId}/ratio`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Aktualisiert die Punkte-Ratio.
 
-## Deploy on Vercel
+Header:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `x-api-key: lp_live_...`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Request:
 
+```json
+{
+	"pointsRatio": 12
+}
+```
 
-test restrictions
+### `POST /api/v1/points/earn`
+
+Rechnet EUR in Punkte um und schreibt sie dem Profil gut.
+
+Header:
+
+- `x-api-key: lp_live_...`
+
+Request:
+
+```json
+{
+	"organizationId": "uuid",
+	"externalCustomerId": "customer-123",
+	"amountEur": 59.9,
+	"metadata": {
+		"orderId": "order-999"
+	}
+}
+```
+
+### `POST /api/v1/points/redeem`
+
+Prufung und Einlosung von Punkten. Bei zu wenig Punkten kommt `409`.
+
+Header:
+
+- `x-api-key: lp_live_...`
+
+### `POST /api/v1/collect`
+
+Alternative API-first Route fuer Punkteeingang. Die Organization wird aus dem `x-api-key` ermittelt.
+
+### `POST /api/v1/redeem`
+
+Alternative API-first Route fuer Einloesung. Die Organization wird aus dem `x-api-key` ermittelt.
+
+Request:
+
+```json
+{
+	"organizationId": "uuid",
+	"externalCustomerId": "customer-123",
+	"points": 300,
+	"metadata": {
+		"rewardCode": "VIP-REWARD"
+	}
+}
+```
+
+### `GET /api/v1/analytics/overview?organizationId={uuid}`
+
+Liefert:
+
+- Anzahl Kundenprofile
+- Gesamtumsatz
+- Punkte-Historie pro Tag
+- letzte Transaktionen
+
+Header:
+
+- `x-api-key: lp_live_...`
+
+## Dashboard
+
+`/dashboard` bietet:
+
+- Registrierung neuer Tenants
+- Membership-basierte Datenisolation je eingeloggtem User
+- Profile-Management je Organization
+- Ratio-Update (nur `admin` Role)
+- Analytics-Ansicht (KPI, Punkte-Historie, Profile)
+
+## API Collections
+
+- Postman: `collections/loyalty-engine.postman_collection.json`
+- Insomnia: `collections/loyalty-engine.insomnia.json`
+
+## OpenAPI
+
+- OpenAPI 3.1 spec: `docs/openapi.yaml`
+
+## Integration Guide
+
+- Enterprise Integration Guide: `docs/integration-guide-enterprise.md`
+- Quickstart in 10 Minuten: `docs/quickstart-10min.md`
 

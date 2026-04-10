@@ -43,9 +43,9 @@ export const Testimonials = () => {
           </CardHeader>
 
           <CardContent className="text-lg leading-8 text-muted-foreground">
-            "Wir haben unser eigenes Treueprogramm in wenigen Stunden live
+            &quot;Wir haben unser eigenes Treueprogramm in wenigen Stunden live
             gebracht. Die API war sauber, das Setup klar und die ersten
-            Wiederkäufe kamen direkt aus den Loyalty-Kampagnen."
+            Wiederkäufe kamen direkt aus den Loyalty-Kampagnen.&quot;
           </CardContent>
         </Card>
 

@@ -1,0 +1,402 @@
+openapi: 3.1.0
+info:
+  title: Loyalty Engine API
+  version: 1.0.0
+  description: |
+    Multi-tenant B2B loyalty logic engine with API-key secured endpoints.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Organizations
+  - name: Points
+  - name: Analytics
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        pointsRatio:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, pointsRatio]
+
+    RegisterOrganizationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        pointsRatio:
+          type: number
+          exclusiveMinimum: 0
+      required: [name, pointsRatio]
+
+    RegisterOrganizationResponse:
+      type: object
+      properties:
+        organization:
+          $ref: '#/components/schemas/Organization'
+        apiKey:
+          type: string
+      required: [organization, apiKey]
+
+    UpdateRatioRequest:
+      type: object
+      properties:
+        pointsRatio:
+          type: number
+          exclusiveMinimum: 0
+      required: [pointsRatio]
+
+    UpdateRatioResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        pointsRatio:
+          type: number
+        updatedAt:
+          type: string
+          format: date-time
+      required: [organizationId, pointsRatio, updatedAt]
+
+    EarnPointsRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+          minLength: 1
+        amountEur:
+          type: number
+          exclusiveMinimum: 0
+        metadata:
+          type: object
+          additionalProperties: true
+      required: [organizationId, externalCustomerId, amountEur]
+
+    EarnPointsResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+        profileId:
+          type: string
+          format: uuid
+        pointsEarned:
+          type: integer
+        newPointsBalance:
+          type: integer
+        totalSpentEur:
+          type: number
+      required:
+        [organizationId, externalCustomerId, profileId, pointsEarned, newPointsBalance, totalSpentEur]
+
+    RedeemPointsRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+          minLength: 1
+        points:
+          type: integer
+          minimum: 1
+        metadata:
+          type: object
+          additionalProperties: true
+      required: [organizationId, externalCustomerId, points]
+
+    RedeemPointsAppliedResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+        profileId:
+          type: string
+          format: uuid
+        redeemedPoints:
+          type: integer
+        newPointsBalance:
+          type: integer
+        status:
+          type: string
+          enum: [applied]
+        message:
+          type: string
+      required:
+        [organizationId, externalCustomerId, profileId, redeemedPoints, newPointsBalance, status, message]
+
+    RedeemPointsRejectedResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+        status:
+          type: string
+          enum: [rejected]
+        message:
+          type: string
+        newPointsBalance:
+          type: integer
+      required: [organizationId, externalCustomerId, status, message, newPointsBalance]
+
+    AnalyticsTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [earn, redeem]
+        points:
+          type: integer
+        eurAmount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        externalCustomerId:
+          type: string
+      required: [id, type, points, eurAmount, createdAt, externalCustomerId]
+
+    AnalyticsOverviewResponse:
+      type: object
+      properties:
+        organization:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            pointsRatio:
+              type: number
+          required: [id, name, pointsRatio]
+        analytics:
+          type: object
+          properties:
+            customersCount:
+              type: integer
+            totalRevenueEur:
+              type: number
+            pointsHistoryByDay:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  earn:
+                    type: integer
+                  redeem:
+                    type: integer
+                required: [earn, redeem]
+            history:
+              type: array
+              items:
+                $ref: '#/components/schemas/AnalyticsTransaction'
+          required: [customersCount, totalRevenueEur, pointsHistoryByDay, history]
+      required: [organization, analytics]
+
+paths:
+  /api/v1/organizations/register:
+    post:
+      tags: [Organizations]
+      summary: Register organization
+      operationId: registerOrganization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterOrganizationRequest'
+            example:
+              name: ACME GmbH
+              pointsRatio: 10
+      responses:
+        '201':
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterOrganizationResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/organizations/{organizationId}/ratio:
+    patch:
+      tags: [Organizations]
+      summary: Update points ratio
+      operationId: updatePointsRatio
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRatioRequest'
+            example:
+              pointsRatio: 12
+      responses:
+        '200':
+          description: Ratio updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRatioResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/points/earn:
+    post:
+      tags: [Points]
+      summary: Earn points for purchase amount
+      operationId: earnPoints
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EarnPointsRequest'
+            example:
+              organizationId: 0f6a6de7-7f5f-4da3-a95a-37f4cb6b3c6c
+              externalCustomerId: customer-123
+              amountEur: 59.9
+              metadata:
+                orderId: order-1001
+      responses:
+        '200':
+          description: Points successfully earned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarnPointsResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/points/redeem:
+    post:
+      tags: [Points]
+      summary: Redeem points for reward
+      operationId: redeemPoints
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemPointsRequest'
+            example:
+              organizationId: 0f6a6de7-7f5f-4da3-a95a-37f4cb6b3c6c
+              externalCustomerId: customer-123
+              points: 200
+              metadata:
+                rewardCode: WELCOME-REWARD
+      responses:
+        '200':
+          description: Points redeemed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedeemPointsAppliedResponse'
+        '409':
+          description: Redeem rejected (insufficient points)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedeemPointsRejectedResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/analytics/overview:
+    get:
+      tags: [Analytics]
+      summary: Get organization analytics overview
+      operationId: getAnalyticsOverview
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Analytics response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsOverviewResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

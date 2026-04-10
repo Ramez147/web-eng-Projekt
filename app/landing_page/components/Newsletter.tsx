@@ -1,8 +1,9 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import type { FormEvent } from "react";
 
 export const Newsletter = () => {
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Subscribed!");
   };

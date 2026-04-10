@@ -60,13 +60,15 @@ export async function getWeeksProfitData(
 }
 
 export async function getDevicesUsedData(
-  _timeFrame = "monthly",
+  timeFrame = "monthly",
 ): Promise<DeviceUsage[]> {
+  const multiplier = timeFrame === "yearly" ? 1.15 : timeFrame === "weekly" ? 0.8 : 1;
+
   return [
-    { name: "Desktop", amount: 41120 },
-    { name: "Mobile", amount: 28750 },
-    { name: "Tablet", amount: 9360 },
-    { name: "TV", amount: 2740 },
+    { name: "Desktop", amount: Math.round(41120 * multiplier) },
+    { name: "Mobile", amount: Math.round(28750 * multiplier) },
+    { name: "Tablet", amount: Math.round(9360 * multiplier) },
+    { name: "TV", amount: Math.round(2740 * multiplier) },
   ];
 }
 

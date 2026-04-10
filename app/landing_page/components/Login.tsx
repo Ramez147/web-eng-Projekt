@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import pilotImg from "../assets/pilot.png";
 import { Button } from "./ui/button";
 import {
@@ -139,10 +140,12 @@ export const Login = () => {
           </p>
 
           <div className="rounded-2xl border bg-muted/40 p-4">
-            <img
+            <Image
               src={pilotSrc}
               alt="Illustration einer Person mit Helm"
               className="mx-auto w-full max-w-xs"
+              width={320}
+              height={320}
             />
           </div>
         </div>

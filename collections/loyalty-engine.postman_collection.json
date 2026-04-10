@@ -1,0 +1,120 @@
+{
+  "info": {
+    "name": "Loyalty Engine API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Core API flows for organization registration, earn, redeem, ratio update and analytics."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "organizationId", "value": "" },
+    { "key": "apiKey", "value": "" },
+    { "key": "externalCustomerId", "value": "customer-123" }
+  ],
+  "item": [
+    {
+      "name": "1) Register Organization",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"ACME GmbH\",\n  \"pointsRatio\": 10\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/organizations/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "organizations", "register"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.organization?.id) pm.collectionVariables.set('organizationId', json.organization.id);",
+              "if (json.apiKey) pm.collectionVariables.set('apiKey', json.apiKey);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) Earn Points",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-api-key", "value": "{{apiKey}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"externalCustomerId\": \"{{externalCustomerId}}\",\n  \"amountEur\": 120.5,\n  \"metadata\": {\n    \"orderId\": \"order-1001\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/points/earn",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "points", "earn"]
+        }
+      }
+    },
+    {
+      "name": "3) Redeem Points",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-api-key", "value": "{{apiKey}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"externalCustomerId\": \"{{externalCustomerId}}\",\n  \"points\": 200,\n  \"metadata\": {\n    \"rewardCode\": \"WELCOME-REWARD\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/points/redeem",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "points", "redeem"]
+        }
+      }
+    },
+    {
+      "name": "4) Get Analytics Overview",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-api-key", "value": "{{apiKey}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/analytics/overview?organizationId={{organizationId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "analytics", "overview"],
+          "query": [
+            { "key": "organizationId", "value": "{{organizationId}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5) Update Points Ratio",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-api-key", "value": "{{apiKey}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pointsRatio\": 12\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/ratio",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "organizations", "{{organizationId}}", "ratio"]
+        }
+      }
+    }
+  ]
+}

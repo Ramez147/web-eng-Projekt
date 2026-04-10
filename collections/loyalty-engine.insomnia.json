@@ -1,0 +1,84 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-04-10T00:00:00.000Z",
+  "__export_source": "loyalty-engine",
+  "resources": [
+    {
+      "_id": "wrk_loyalty_engine",
+      "_type": "workspace",
+      "name": "Loyalty Engine API",
+      "description": "Insomnia workspace for loyalty API routes"
+    },
+    {
+      "_id": "env_loyalty_base",
+      "_type": "environment",
+      "parentId": "wrk_loyalty_engine",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "organization_id": "",
+        "api_key": "",
+        "external_customer_id": "customer-123"
+      }
+    },
+    {
+      "_id": "req_register",
+      "_type": "request",
+      "parentId": "wrk_loyalty_engine",
+      "name": "Register Organization",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/organizations/register",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"ACME GmbH\",\n  \"pointsRatio\": 10\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_earn",
+      "_type": "request",
+      "parentId": "wrk_loyalty_engine",
+      "name": "Earn Points",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/points/earn",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"organizationId\": \"{{ _.organization_id }}\",\n  \"externalCustomerId\": \"{{ _.external_customer_id }}\",\n  \"amountEur\": 120.5\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-api-key", "value": "{{ _.api_key }}" }
+      ]
+    },
+    {
+      "_id": "req_redeem",
+      "_type": "request",
+      "parentId": "wrk_loyalty_engine",
+      "name": "Redeem Points",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/points/redeem",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"organizationId\": \"{{ _.organization_id }}\",\n  \"externalCustomerId\": \"{{ _.external_customer_id }}\",\n  \"points\": 200\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-api-key", "value": "{{ _.api_key }}" }
+      ]
+    },
+    {
+      "_id": "req_analytics",
+      "_type": "request",
+      "parentId": "wrk_loyalty_engine",
+      "name": "Analytics Overview",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/analytics/overview?organizationId={{ _.organization_id }}",
+      "headers": [
+        { "name": "x-api-key", "value": "{{ _.api_key }}" }
+      ]
+    }
+  ]
+}
