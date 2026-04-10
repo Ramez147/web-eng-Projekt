@@ -1,4 +1,4 @@
-wie der API funktionniert : 
+git wie der API funktionniert : 
 So funktioniert eure API jetzt und so können Unternehmen sie nutzen:
 
 **1. Grundprinzip**
