@@ -25,14 +25,24 @@ Mandantenfahige B2B-SaaS-Plattform fur Treueprogramme mit API-first Architektur.
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
-2. SQL-Migration in Supabase ausfuhren:
+2. Stripe Webhook konfigurieren:
+
+- Gehe zu deinem Stripe Dashboard > Webhooks
+- Erstelle einen neuen Webhook mit URL: `https://yourdomain.com/api/payment/webhook`
+- Wähle Events: `payment_intent.succeeded`
+- Kopiere den Webhook Secret in `STRIPE_WEBHOOK_SECRET`
+
+3. SQL-Migration in Supabase ausfuhren:
 
 - Datei: `supabase/migrations/20260410_loyalty_engine.sql`
 - Datei: `supabase/migrations/20260410_memberships.sql`
 
-3. Dev-Server starten:
+4. Dev-Server starten:
 
 ```bash
 npm run dev
@@ -131,6 +141,36 @@ Liefert:
 Header:
 
 - `x-api-key: lp_live_...`
+
+## Stripe Payment Integration
+
+Die Plattform unterstützt Zahlungen über Stripe für Treueprogramm-Funktionen.
+
+### Verwendung der Payment-Komponente
+
+Importiere die `StripePayment` Komponente in deine Seite:
+
+```tsx
+import { StripePayment } from "@/components/stripe-payment";
+
+export default function CheckoutPage() {
+  return (
+    <div>
+      <h1>Checkout</h1>
+      <StripePayment
+        amount={29.99}
+        onSuccess={() => console.log("Payment successful")}
+        onError={(error) => console.error(error)}
+      />
+    </div>
+  );
+}
+```
+
+### API Endpoints
+
+- `POST /api/payment/create-intent` - Erstellt einen Payment Intent
+- `POST /api/payment/webhook` - Webhook für Stripe Events
 
 ## Dashboard
 
