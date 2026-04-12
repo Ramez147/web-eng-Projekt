@@ -9,8 +9,9 @@ html {
   border-radius: 24px;
   rotate: 35deg;
   z-index: -1;
-  width: 260px;
-  top: 200px;
+  width: 200px;
+  bottom: 20px;
+  left: 120px;
   height: 400px;
   filter: blur(150px);
   will-change: transform;
@@ -30,7 +31,7 @@ html {
 
 @media (max-width: 1024px) {
   .shadow {
-    top: 70px;
+    bottom: 10px;
   }
 
   @keyframes shadow-slide {
@@ -47,7 +48,7 @@ html {
 
 @media (max-width: 768px) {
   .shadow {
-    top: 70px;
+    bottom: 0;
     width: 100px;
     height: 350px;
     filter: blur(60px);

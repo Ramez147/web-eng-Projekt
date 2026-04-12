@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="container grid lg:grid-cols-2 items-center py-20 md:py-32 gap-12">
+    <section className="container relative grid lg:grid-cols-2 items-center py-20 md:py-32 gap-12 overflow-hidden">
       <div className="z-10 lg:col-start-1 lg:row-start-1">
         <HeroCards />
       </div>

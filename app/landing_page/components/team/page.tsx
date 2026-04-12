@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserRound } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 const members = [
@@ -31,6 +34,7 @@ const members = [
 
 export default function TeamPage() {
   const [badgeScale, setBadgeScale] = useState(1);
+  const router = useRouter();
 
   useEffect(() => {
     const maxShrinkDistance = 220;
@@ -61,6 +65,15 @@ export default function TeamPage() {
         >
           Team
         </Badge>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            Back
+          </Button>
+          <Button asChild>
+            <Link href="/">Back to Home Page</Link>
+          </Button>
+        </div>
 
         <Card className="border-border/60 bg-card/90 shadow-xl shadow-primary/5 backdrop-blur">
           <CardHeader className="space-y-3">
