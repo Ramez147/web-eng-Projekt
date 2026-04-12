@@ -1,35 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrganizationFromApiKey } from "@/lib/loyalty/auth";
+import {
+  createPublicApiErrorResponse,
+  getOrganizationIdFromApiKey,
+  redeemRequestSchema,
+} from "@/lib/loyalty/public-api";
 import { getAdminSupabaseClient } from "@/lib/loyalty/db";
-import { jsonError } from "@/lib/loyalty/error-response";
-import { parseNonEmptyString, parsePositiveNumber } from "@/lib/loyalty/validators";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const externalCustomerId = parseNonEmptyString(
-      body?.externalCustomerId,
-      "externalCustomerId",
-    );
-    const pointsToRedeem = Math.floor(parsePositiveNumber(body?.points, "points"));
-
-    const organization = await getOrganizationFromApiKey(request);
+    const organization = await getOrganizationIdFromApiKey(request);
+    const body = redeemRequestSchema.parse(await request.json());
 
     const supabase = getAdminSupabaseClient();
     const { data, error } = await supabase.rpc("loyalty_redeem_points", {
       p_organization_id: organization.id,
-      p_external_customer_id: externalCustomerId,
-      p_points_to_redeem: pointsToRedeem,
-      p_metadata: body?.metadata ?? {},
+      p_external_customer_id: body.externalCustomerId,
+      p_points_to_redeem: body.points,
+      p_metadata: body.metadata,
     });
 
     if (error) {
-      throw new Error(error.message);
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    const result = data?.[0];
+    const result = Array.isArray(data) ? data[0] : data;
     if (!result) {
       throw new Error("No transaction result returned");
     }
@@ -37,19 +33,17 @@ export async function POST(request: NextRequest) {
     if (result.status !== "applied") {
       return NextResponse.json(
         {
-          organizationId: organization.id,
-          externalCustomerId,
+          error: result.message,
           status: result.status,
-          message: result.message,
           newPointsBalance: Number(result.new_points_balance),
         },
-        { status: 409 },
+        { status: 400 },
       );
     }
 
     return NextResponse.json({
       organizationId: organization.id,
-      externalCustomerId,
+      externalCustomerId: body.externalCustomerId,
       profileId: result.profile_id,
       redeemedPoints: result.redeemed_points,
       newPointsBalance: Number(result.new_points_balance),
@@ -57,7 +51,6 @@ export async function POST(request: NextRequest) {
       message: result.message,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return jsonError(message);
+    return createPublicApiErrorResponse(error);
   }
 }

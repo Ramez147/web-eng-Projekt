@@ -103,7 +103,7 @@ begin
   update public.customer_profiles
   set
     points_balance = points_balance + v_points,
-    total_spent_eur = total_spent_eur + p_eur_amount
+    total_spent_eur = public.customer_profiles.total_spent_eur + p_eur_amount
   where organization_id = p_organization_id
     and external_customer_id = p_external_customer_id
   returning id, points_balance, total_spent_eur

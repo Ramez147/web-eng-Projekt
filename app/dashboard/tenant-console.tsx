@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, ReactNode, useMemo, useState, useEffect, useCallback } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -13,6 +13,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { generateApiKey } from "./actions";
 
 type RegisterResponse = {
   organization: {
@@ -85,6 +86,7 @@ export function LoyaltyConsole() {
   const [pointsRatio, setPointsRatio] = useState("10");
   const [status, setStatus] = useState<string | null>(null);
   const [latestApiKey, setLatestApiKey] = useState<string>("");
+  const [isGeneratingApiKey, setIsGeneratingApiKey] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
   const [profiles, setProfiles] = useState<ProfilesResponse["profiles"]>([]);
 
@@ -129,31 +131,6 @@ export function LoyaltyConsole() {
       { earned: 0, redeemed: 0 }
     );
   }, [analytics]);
-
-  // Check authentication on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/auth/session", {
-          credentials: "include",
-        });
-        const result = (await response.json()) as { authenticated?: boolean };
-        
-        if (response.ok && result.authenticated) {
-          setIsAuthenticated(true);
-          // Delay slightly to ensure cookies are fully set
-          await new Promise(resolve => setTimeout(resolve, 100));
-          await loadDashboardData();
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch {
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   async function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -269,7 +246,25 @@ export function LoyaltyConsole() {
     }
   }
 
-  async function loadDashboardData() {
+  const loadMemberships = useCallback(async () => {
+    const response = await fetch("/api/v1/dashboard/memberships", {
+      credentials: "include",
+    });
+
+    const data = (await response.json()) as MembershipListResponse | ErrorResponse;
+
+    if (!response.ok) {
+      throw new Error(hasError(data) ? data.error : "Membership load failed");
+    }
+
+    if (hasError(data)) {
+      throw new Error(data.error);
+    }
+
+    setMemberships(data.memberships);
+  }, []);
+
+  const loadDashboardData = useCallback(async () => {
     setStatus("Lade Dashboard-Daten...");
 
     try {
@@ -326,25 +321,32 @@ export function LoyaltyConsole() {
 
       setStatus(message);
     }
-  }
+  }, [loadMemberships]);
 
-  async function loadMemberships() {
-    const response = await fetch("/api/v1/dashboard/memberships", {
-      credentials: "include",
-    });
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/session", {
+          credentials: "include",
+        });
+        const result = (await response.json()) as { authenticated?: boolean };
 
-    const data = (await response.json()) as MembershipListResponse | ErrorResponse;
+        if (response.ok && result.authenticated) {
+          setIsAuthenticated(true);
+          // Delay slightly to ensure cookies are fully set
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          await loadDashboardData();
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
 
-    if (!response.ok) {
-      throw new Error(hasError(data) ? data.error : "Membership load failed");
-    }
-
-    if (hasError(data)) {
-      throw new Error(data.error);
-    }
-
-    setMemberships(data.memberships);
-  }
+    checkAuth();
+  }, [loadDashboardData]);
 
   async function updateRatio(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -432,6 +434,26 @@ export function LoyaltyConsole() {
     }
   }
 
+  async function regenerateApiKey() {
+    if (!isAdmin || !analytics?.organization.id) {
+      setStatus("Nur Admins dürfen API-Keys neu generieren.");
+      return;
+    }
+
+    setIsGeneratingApiKey(true);
+    setStatus("API-Key wird neu generiert...");
+
+    try {
+      const apiKey = await generateApiKey(analytics.organization.id);
+      setLatestApiKey(apiKey);
+      setStatus("API-Key wurde neu generiert und wird nur einmal angezeigt.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Fehler bei der API-Key-Generierung");
+    } finally {
+      setIsGeneratingApiKey(false);
+    }
+  }
+
   async function handleLogout() {
     setStatus("Melde ab...");
 
@@ -461,7 +483,7 @@ export function LoyaltyConsole() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
       {isAuthenticated === false && (
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:max-w-md sm:mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -691,6 +713,36 @@ export function LoyaltyConsole() {
                   </p>
                 )}
               </form>
+
+              {isAdmin ? (
+                <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        API-Key neu generieren
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        Der alte Key wird sofort ungültig. Der neue Klartext-Key wird nur einmal angezeigt.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={regenerateApiKey}
+                      disabled={isGeneratingApiKey}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-amber-500 disabled:opacity-50"
+                    >
+                      {isGeneratingApiKey ? "Generiere..." : "API-Key neu generieren"}
+                    </button>
+                  </div>
+
+                  {latestApiKey ? (
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300">
+                      <p className="font-medium">Neuer API-Key (nur hier sichtbar):</p>
+                      <p className="mt-1 break-all font-mono text-[11px]">{latestApiKey}</p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </section>
 
@@ -878,7 +930,7 @@ export function LoyaltyConsole() {
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }
 

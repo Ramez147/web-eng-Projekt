@@ -1,11 +1,17 @@
+import { PeriodPicker } from "@/components/period-picker";
 import { TrendingUpIcon } from "@/assets/icons";
 import { compactFormat } from "@/lib/format-number";
 import { cn } from "@/lib/utils";
 import { getCampaignVisitorsData } from "@/services/charts.services";
 import { CampaignVisitorsChart } from "./chart";
 
-export async function CampaignVisitors({ className }: { className?: string }) {
-  const data = await getCampaignVisitorsData();
+type PropsType = {
+  className?: string;
+  timeFrame?: string;
+};
+
+export async function CampaignVisitors({ className, timeFrame = "monthly" }: PropsType) {
+  const data = await getCampaignVisitorsData(timeFrame);
 
   return (
     <div
@@ -15,13 +21,16 @@ export async function CampaignVisitors({ className }: { className?: string }) {
       )}
     >
       <div className="border-b border-stroke px-6 py-5.5 dark:border-dark-3">
-        <div className="flex justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="mb-1.5 text-2xl font-bold text-black">
             Campaign Visitors
           </h2>
 
-          <div className="mb-0.5 text-2xl font-bold text-dark dark:text-black">
-            {compactFormat(data.total_visitors)}
+          <div className="flex items-center gap-3">
+            <PeriodPicker defaultValue={timeFrame} sectionKey="campaign_visitors" />
+            <div className="mb-0.5 text-2xl font-bold text-dark dark:text-black">
+              {compactFormat(data.total_visitors)}
+            </div>
           </div>
         </div>
 

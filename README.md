@@ -69,7 +69,7 @@ Aktualisiert die Punkte-Ratio.
 
 Header:
 
-- `x-api-key: lp_live_...`
+- `x-api-key: ly_live_...`
 
 Request:
 
@@ -85,7 +85,7 @@ Rechnet EUR in Punkte um und schreibt sie dem Profil gut.
 
 Header:
 
-- `x-api-key: lp_live_...`
+- `x-api-key: ly_live_...`
 
 Request:
 
@@ -106,11 +106,24 @@ Prufung und Einlosung von Punkten. Bei zu wenig Punkten kommt `409`.
 
 Header:
 
-- `x-api-key: lp_live_...`
+- `x-api-key: ly_live_...`
 
 ### `POST /api/v1/collect`
 
 Alternative API-first Route fuer Punkteeingang. Die Organization wird aus dem `x-api-key` ermittelt.
+
+Request-Beispiel:
+
+```json
+{
+	"externalCustomerId": "customer-123",
+	"amountEur": 59.9,
+	"metadata": {
+		"orderId": "order-999",
+		"channel": "shopify"
+	}
+}
+```
 
 ### `POST /api/v1/redeem`
 
@@ -140,7 +153,7 @@ Liefert:
 
 Header:
 
-- `x-api-key: lp_live_...`
+- `x-api-key: ly_live_...`
 
 ## Stripe Payment Integration
 

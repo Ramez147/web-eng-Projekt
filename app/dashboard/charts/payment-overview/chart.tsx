@@ -6,8 +6,8 @@ import dynamic from "next/dynamic";
 
 type PropsType = {
   data: {
-    received: { x: unknown; y: number }[];
-    due: { x: unknown; y: number }[];
+    revenueEur: { x: unknown; y: number }[];
+    redeemedPoints: { x: unknown; y: number }[];
   };
 };
 
@@ -83,20 +83,39 @@ export function PaymentsOverviewChart({ data }: PropsType) {
         show: false,
       },
     },
+    yaxis: [
+      {
+        title: {
+          text: "Revenue (EUR)",
+        },
+        labels: {
+          formatter: (value) => `€${Math.round(value)}`,
+        },
+      },
+      {
+        opposite: true,
+        title: {
+          text: "Redeemed Points",
+        },
+        labels: {
+          formatter: (value) => `${Math.round(value)} pt`,
+        },
+      },
+    ],
   };
 
   return (
-    <div className="-ml-4 -mr-5 h-[310px]">
+    <div className="-ml-4 -mr-5 h-77.5">
       <Chart
         options={options}
         series={[
           {
-            name: "Received",
-            data: data.received,
+            name: "Revenue (EUR)",
+            data: data.revenueEur,
           },
           {
-            name: "Due",
-            data: data.due,
+            name: "Redeemed Points",
+            data: data.redeemedPoints,
           },
         ]}
         type="area"

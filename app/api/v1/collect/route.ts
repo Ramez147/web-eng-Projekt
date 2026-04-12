@@ -1,49 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrganizationFromApiKey } from "@/lib/loyalty/auth";
+import {
+  collectRequestSchema,
+  createPublicApiErrorResponse,
+  getOrganizationIdFromApiKey,
+} from "@/lib/loyalty/public-api";
 import { getAdminSupabaseClient } from "@/lib/loyalty/db";
-import { jsonError } from "@/lib/loyalty/error-response";
-import { parseNonEmptyString, parsePositiveNumber } from "@/lib/loyalty/validators";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const externalCustomerId = parseNonEmptyString(
-      body?.externalCustomerId,
-      "externalCustomerId",
-    );
-    const amountEur = parsePositiveNumber(body?.amountEur, "amountEur");
-
-    const organization = await getOrganizationFromApiKey(request);
+    const organization = await getOrganizationIdFromApiKey(request);
+    const body = collectRequestSchema.parse(await request.json());
 
     const supabase = getAdminSupabaseClient();
     const { data, error } = await supabase.rpc("loyalty_earn_points", {
       p_organization_id: organization.id,
-      p_external_customer_id: externalCustomerId,
-      p_eur_amount: amountEur,
-      p_metadata: body?.metadata ?? {},
+      p_external_customer_id: body.externalCustomerId,
+      p_eur_amount: body.amountEur,
+      p_metadata: body.metadata,
     });
 
     if (error) {
-      throw new Error(error.message);
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    const result = data?.[0];
+    const result = Array.isArray(data) ? data[0] : data;
     if (!result) {
       throw new Error("No transaction result returned");
     }
 
     return NextResponse.json({
       organizationId: organization.id,
-      externalCustomerId,
+      externalCustomerId: body.externalCustomerId,
       profileId: result.profile_id,
       pointsCollected: result.points_earned,
       newPointsBalance: Number(result.new_points_balance),
       totalSpentEur: Number(result.total_spent_eur),
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return jsonError(message);
+    return createPublicApiErrorResponse(error);
   }
 }

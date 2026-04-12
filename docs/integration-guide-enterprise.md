@@ -41,7 +41,7 @@ Ein Unternehmen nutzt eure API als externe Punkte-Engine:
     "pointsRatio": 10,
     "createdAt": "2026-04-10T12:00:00.000Z"
   },
-  "apiKey": "lp_live_xxx"
+  "apiKey": "ly_live_xxx"
 }
 ```
 
