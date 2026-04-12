@@ -38,7 +38,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         campaignVisitors: selectedTimeFrames.campaign_visitors,
         transactionMix: selectedTimeFrames.transaction_mix ?? selectedTimeFrames.used_devices,
       }} />
-      <LoyaltyConsole />
+      <LoyaltyConsole compact />
     </main>
   );
 }
