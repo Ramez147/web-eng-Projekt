@@ -12,7 +12,7 @@ import { Testimonials } from "./components/Testimonials";
 
 function App() {
   return (
-    <>
+    <div className="ml-4 md:ml-10">
       <Navbar />
       <Hero />
       <Login />
@@ -24,7 +24,7 @@ function App() {
       <Cta />
       <Footer />
       <ScrollToTop />
-    </>
+    </div>
   );
 }
 
