@@ -42,7 +42,7 @@ export const FAQ = () => {
     >
       <h2 className="text-3xl md:text-4xl font-bold mb-4">
         Fragen, die fast jedes Team zuerst stellt{" "}
-        <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
+        <span className="bg-gradient-to-b from-primary/60 to-primary bg-clip-text">
           bevor es startet
         </span>
       </h2>

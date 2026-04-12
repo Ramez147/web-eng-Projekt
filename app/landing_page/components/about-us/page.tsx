@@ -1,5 +1,5 @@
-import { Badge } from "../landing_page/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../landing_page/components/ui/card";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 export default function AboutUsPage() {
   return (

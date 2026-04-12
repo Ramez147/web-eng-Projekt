@@ -51,7 +51,7 @@ export const Features = () => {
     >
       <h2 className="text-3xl lg:text-4xl font-bold md:text-center">
         Loyalty-Features, die{" "}
-        <span className="bg-gradient-to-b from-primary/60 to-primary text-transparent bg-clip-text">
+        <span className="bg-gradient-to-b from-primary/60 to-primary bg-clip-text">
           Umsatz und Wiederkäufe
         </span>
         {' '}
@@ -81,16 +81,13 @@ export const Features = () => {
             <CardContent>{description}</CardContent>
 
             <CardFooter>
-              <div className="flex flex-wrap gap-2">
+              <ul className="list-disc pl-5 space-y-1">
                 {points.map((point) => (
-                  <Badge
-                    key={point}
-                    variant="secondary"
-                  >
+                  <li key={point} className="font-semibold">
                     {point}
-                  </Badge>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </CardFooter>
           </Card>
         ))}

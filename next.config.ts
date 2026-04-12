@@ -9,6 +9,25 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/about-us",
+        destination: "/landing_page/components/about-us",
+        permanent: false,
+      },
+      {
+        source: "/kontakt",
+        destination: "/landing_page/components/kontakt",
+        permanent: false,
+      },
+      {
+        source: "/team",
+        destination: "/landing_page/components/team",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
