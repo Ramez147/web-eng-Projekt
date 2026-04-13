@@ -1,4 +1,5 @@
-import { DashboardOverview } from "./overview";
+import { CustomerDataTable } from "@/components/dashboard/CustomerDataTable";
+import { DashboardOverviewCharts, DashboardOverviewHeader } from "./overview";
 import { LoyaltyConsole } from "./tenant-console";
 
 type DashboardPageProps = {
@@ -31,13 +32,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
-      <DashboardOverview timeFrames={{
+      <DashboardOverviewHeader timeFrames={{
         global: selectedTimeFrames.global,
         paymentsOverview: selectedTimeFrames.payments_overview,
         weeksProfit: selectedTimeFrames.weeks_profit,
         campaignVisitors: selectedTimeFrames.campaign_visitors,
         transactionMix: selectedTimeFrames.transaction_mix ?? selectedTimeFrames.used_devices,
       }} />
+      <DashboardOverviewCharts timeFrames={{
+        global: selectedTimeFrames.global,
+        paymentsOverview: selectedTimeFrames.payments_overview,
+        weeksProfit: selectedTimeFrames.weeks_profit,
+        campaignVisitors: selectedTimeFrames.campaign_visitors,
+        transactionMix: selectedTimeFrames.transaction_mix ?? selectedTimeFrames.used_devices,
+      }} />
+      <CustomerDataTable />
       <LoyaltyConsole compact />
     </main>
   );

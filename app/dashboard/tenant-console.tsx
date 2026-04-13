@@ -9,11 +9,11 @@ import {
   Download,
   Gauge,
   LineChart,
-  LogOut,
   RefreshCw,
   ShieldCheck,
   Users,
   Wallet,
+  LogOut,
 } from "lucide-react";
 import { generateApiKey } from "./actions";
 
@@ -1046,7 +1046,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
             </div>
           </section>
 
-          {status ? (
+          {/* {status ? (
             <section
               className={`rounded-2xl border px-4 py-3 text-sm ${
                 statusTone === "error"
@@ -1056,7 +1056,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
             >
               {status}
             </section>
-          ) : null}
+          ) : null} */}
 
           {analytics ? (
             <>
