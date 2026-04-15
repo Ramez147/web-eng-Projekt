@@ -17,7 +17,7 @@ export const Hero = () => {
 
         <main className="text-5xl md:text-6xl font-bold tracking-tight">
           <h1 className="inline">
-            <span className="inline bg-gradient-to-r from-primary to-emerald-500 text-transparent bg-clip-text">
+            <span className="inline bg-gradient-to-r from-primary to-emerald-500 text-emerald-500 bg-clip-text">
               Verwandle Einmalkunden
             </span>{" "}
             in echte Fans

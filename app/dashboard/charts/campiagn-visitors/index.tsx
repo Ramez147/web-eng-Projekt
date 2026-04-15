@@ -16,26 +16,26 @@ export async function CampaignVisitors({ className, timeFrame = "monthly" }: Pro
   return (
     <div
       className={cn(
-        "rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card",
+        "rounded-3xl border border-white/8 bg-[#07140d] shadow-[0_16px_50px_rgba(0,0,0,0.35)]",
         className,
       )}
     >
-      <div className="border-b border-stroke px-6 py-5.5 dark:border-dark-3">
+      <div className="border-b border-white/8 px-6 py-5.5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="mb-1.5 text-2xl font-bold text-black">
+          <h2 className="mb-1.5 text-2xl font-bold text-white">
             Campaign Visitors
           </h2>
 
           <div className="flex items-center gap-3">
             <PeriodPicker defaultValue={timeFrame} sectionKey="campaign_visitors" />
-            <div className="mb-0.5 text-2xl font-bold text-dark dark:text-black">
+            <div className="mb-0.5 text-2xl font-bold text-white">
               {compactFormat(data.total_visitors)}
             </div>
           </div>
         </div>
 
         <div className="flex justify-between">
-          <div className="text-sm font-medium text-black">Last Campaign Performance</div>
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-slate-400">Last Campaign Performance</div>
 
           <div
             className={cn(
@@ -47,7 +47,7 @@ export async function CampaignVisitors({ className, timeFrame = "monthly" }: Pro
               className={`${data.performance > 0 ? "-rotate-6 " : "scale-y-[-1]"}`}
             />
 
-            <span className="text-sm font-medium text-black">{data.performance}%</span>
+            <span className="text-sm font-medium text-white">{data.performance}%</span>
           </div>
         </div>
       </div>

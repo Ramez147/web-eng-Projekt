@@ -79,11 +79,11 @@ export function usePagination(totalCount: number, pageSize: number): PaginationS
 const avatarClasses = [
   "bg-lime-300 text-slate-950",
   "bg-rose-300 text-slate-950",
-  "bg-cyan-300 text-slate-950",
+  "bg-emerald-300 text-slate-950",
   "bg-amber-300 text-slate-950",
   "bg-emerald-300 text-slate-950",
   "bg-fuchsia-300 text-slate-950",
-  "bg-sky-300 text-slate-950",
+  "bg-green-300 text-slate-950",
   "bg-violet-300 text-slate-950",
 ] as const;
 
@@ -250,7 +250,7 @@ export function CustomerDataTable({ pageSize = 4 }: CustomerDataTableProps) {
   }
 
   return (
-    <main className="rounded-[32px] border border-white/8 bg-[#050816] px-4 py-5 shadow-[0_30px_120px_rgba(0,0,0,0.45)] sm:px-6 lg:px-8">
+    <main className="rounded-4xl border border-white/8 bg-[#07140d] px-4 py-5 shadow-[0_30px_120px_rgba(0,0,0,0.45)] sm:px-6 lg:px-8">
       <header className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight text-white">Customers</h2>
@@ -271,10 +271,10 @@ export function CustomerDataTable({ pageSize = 4 }: CustomerDataTableProps) {
         </label>
       </header>
 
-      <div className="mt-5 overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03]">
+      <div className="mt-5 overflow-hidden rounded-3xl border border-white/8 bg-white/3">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
-            <thead className="bg-white/[0.02] text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <thead className="bg-white/2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
               <tr>
                 <th className="w-12 px-4 py-4">
                   <input
@@ -323,7 +323,7 @@ export function CustomerDataTable({ pageSize = 4 }: CustomerDataTableProps) {
                   const isSelected = selection.has(row.id);
 
                   return (
-                    <tr key={row.id} className="border-t border-white/6 transition hover:bg-white/[0.03]">
+                    <tr key={row.id} className="border-t border-white/6 transition hover:bg-white/3">
                       <td className="px-4 py-5 align-middle">
                         <input
                           type="checkbox"

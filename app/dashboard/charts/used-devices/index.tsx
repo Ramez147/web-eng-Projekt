@@ -17,12 +17,12 @@ export async function TransactionMix({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 grid-rows-[auto_1fr] gap-9 rounded-[10px] bg-white p-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card",
+        "grid grid-cols-1 grid-rows-[auto_1fr] gap-9 rounded-3xl border border-white/8 bg-[#07140d] p-7.5 shadow-[0_16px_50px_rgba(0,0,0,0.35)]",
         className,
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-body-2xlg font-bold text-black">
+        <h2 className="text-body-2xlg font-bold text-white">
           Transaction Mix
         </h2>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -237,8 +237,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
       if (activityWindow.lastWindow.length === 0) {
         alerts.push({
           tone: "warning",
-          title: `Keine Aktivität in ${activityWindow.windowLabel}`,
-          body: "Es gab in diesem Zeitraum keine Transaktionen. Prüfe Kampagnen, API-Clients oder Segmentierung.",
+          title: `Keine AktivitÃ¤t in ${activityWindow.windowLabel}`,
+          body: "Es gab in diesem Zeitraum keine Transaktionen. PrÃ¼fe Kampagnen, API-Clients oder Segmentierung.",
         });
       } else {
         alerts.push({
@@ -247,7 +247,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
           body:
             activityWindow.revenuePreviousWindow === 0
               ? `Im letzten Fenster wurden ${activityWindow.revenueLastWindow.toFixed(2)} EUR erfasst.`
-              : `Umsatz ${revenueChange >= 0 ? "gestiegen" : "gefallen"} um ${Math.abs(Math.round(revenueChange))}% gegenüber der Vorperiode.`,
+              : `Umsatz ${revenueChange >= 0 ? "gestiegen" : "gefallen"} um ${Math.abs(Math.round(revenueChange))}% gegenÃ¼ber der Vorperiode.`,
         });
 
         alerts.push({
@@ -280,8 +280,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
     if (pointsSummary.earned > 0 && pointsSummary.redeemed === 0) {
       alerts.push({
         tone: "info",
-        title: "Nur Earn-Aktivität",
-        body: "Es wurden Punkte gesammelt, aber noch nichts eingelöst. Prüfe Kampagnen oder Redeem-Kommunikation.",
+        title: "Nur Earn-AktivitÃ¤t",
+        body: "Es wurden Punkte gesammelt, aber noch nichts eingelÃ¶st. PrÃ¼fe Kampagnen oder Redeem-Kommunikation.",
       });
     }
 
@@ -289,7 +289,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
       alerts.push({
         tone: "warning",
         title: "Hoher Redeem-Anteil",
-        body: "Ein großer Teil der Punkte wird bereits eingelöst. Das ist gut für Nutzung, kann aber auf hohe Kosten im Reward-Topf hinweisen.",
+        body: "Ein groÃŸer Teil der Punkte wird bereits eingelÃ¶st. Das ist gut fÃ¼r Nutzung, kann aber auf hohe Kosten im Reward-Topf hinweisen.",
       });
     }
 
@@ -297,15 +297,15 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
       alerts.push({
         tone: "warning",
         title: "Stark konzentrierter Umsatz",
-        body: `Der Top-Kunde macht rund ${Math.round(revenueShare)}% des Gesamtumsatzes aus. Ein breiterer Kundenmix wäre stabiler.`,
+        body: `Der Top-Kunde macht rund ${Math.round(revenueShare)}% des Gesamtumsatzes aus. Ein breiterer Kundenmix wÃ¤re stabiler.`,
       });
     }
 
     if (analytics.analytics.totalRevenueEur >= 1000 && topCustomers.length > 0) {
       alerts.push({
         tone: "success",
-        title: "Verlässliche Nutzung",
-        body: `Die stärksten Kunden treiben bereits ${topCustomers.length} sichtbare Profile im aktuellen Snapshot an.`,
+        title: "VerlÃ¤ssliche Nutzung",
+        body: `Die stÃ¤rksten Kunden treiben bereits ${topCustomers.length} sichtbare Profile im aktuellen Snapshot an.`,
       });
     }
 
@@ -444,7 +444,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
     event.preventDefault();
 
     if (!canCreateOrganization) {
-      setStatus("Nur Admins dürfen Organisationen erstellen.");
+      setStatus("Nur Admins dÃ¼rfen Organisationen erstellen.");
       return;
     }
 
@@ -586,7 +586,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
     event.preventDefault();
 
     if (!isAdmin) {
-      setStatus("Nur Admins dürfen die Ratio aktualisieren.");
+      setStatus("Nur Admins dÃ¼rfen die Ratio aktualisieren.");
       return;
     }
 
@@ -623,7 +623,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
     event.preventDefault();
 
     if (!isAdmin) {
-      setStatus("Nur Admins dürfen User zuweisen.");
+      setStatus("Nur Admins dÃ¼rfen User zuweisen.");
       return;
     }
 
@@ -670,7 +670,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
 
   async function regenerateApiKey() {
     if (!isAdmin || !analytics?.organization.id) {
-      setStatus("Nur Admins dürfen API-Keys neu generieren.");
+      setStatus("Nur Admins dÃ¼rfen API-Keys neu generieren.");
       return;
     }
 
@@ -719,17 +719,17 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
       {isAuthenticated === false && (
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:max-w-md sm:mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <section className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] sm:max-w-md sm:mx-auto">
+          <h2 className="text-2xl font-bold text-white">
             Anmelden erforderlich
           </h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-2 text-sm text-slate-300">
             Melden Sie sich an, um auf Ihr Loyalty Dashboard zuzugreifen.
           </p>
 
           <form onSubmit={handleAuthSubmit} className="mt-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="block text-sm font-medium text-slate-300">
                 Email
               </label>
               <input
@@ -737,20 +737,20 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
                 placeholder="name@beispiel.de"
-                className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="block text-sm font-medium text-slate-300">
                 Passwort
               </label>
               <input
                 type="password"
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                placeholder="••••••••"
-                className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
               />
             </div>
 
@@ -763,12 +763,12 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
             <button
               type="submit"
               disabled={isAuthSubmitting}
-              className="w-full rounded-xl bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-500"
+              className="w-full rounded-xl bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500"
             >
               {isAuthSubmitting
                 ? authMode === "signin"
-                  ? "Anmeldung läuft..."
-                  : "Registrierung läuft..."
+                  ? "Anmeldung lÃ¤uft..."
+                  : "Registrierung lÃ¤uft..."
                 : authMode === "signin"
                   ? "Anmelden"
                   : "Registrieren"}
@@ -781,7 +781,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   setAuthMode(authMode === "signin" ? "signup" : "signin");
                   setAuthError("");
                 }}
-                className="text-sky-600 hover:underline dark:text-sky-400"
+                className="text-emerald-600 hover:underline dark:text-emerald-400"
               >
                 {authMode === "signin"
                   ? "Noch kein Konto? Registrieren"
@@ -793,43 +793,43 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
       )}
 
       {isAuthenticated === null && (
-        <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-          Authentifizierung wird überprüft...
+        <section className="rounded-3xl border border-dashed border-white/12 bg-[#07140d] px-6 py-10 text-center text-sm text-slate-400">
+          Authentifizierung wird Ã¼berprÃ¼ft...
         </section>
       )}
 
       {isAuthenticated === true && (
         <>
           {!compact ? (
-            <section className="relative overflow-hidden rounded-3xl border border-sky-100 bg-linear-to-br from-white via-sky-50 to-cyan-100 p-6 shadow-sm md:p-8 dark:border-sky-900/60 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/70">
-              <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-cyan-300/20 blur-2xl dark:bg-cyan-400/10" />
-              <div className="pointer-events-none absolute -bottom-20 left-8 h-44 w-44 rounded-full bg-sky-400/20 blur-2xl dark:bg-sky-500/10" />
+            <section className="relative overflow-hidden rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] md:p-8">
+              <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-emerald-400/12 blur-2xl" />
+              <div className="pointer-events-none absolute -bottom-20 left-8 h-44 w-44 rounded-full bg-emerald-500/12 blur-2xl" />
 
               <div className="relative">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="inline-flex items-center gap-2 rounded-full border border-sky-300/50 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-700 dark:border-sky-800 dark:bg-slate-900/70 dark:text-sky-300">
+                  <p className="inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-300">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Membership Scoped Dashboard
                   </p>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-white"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-600"
                   >
                     <LogOut className="h-3.5 w-3.5" />
                     Logout
                   </button>
                 </div>
                 {currentRole ? (
-                  <p className="mt-3 inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white dark:bg-slate-100 dark:text-slate-900">
+                  <p className="mt-3 inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
                     Rolle: {currentRole}
                   </p>
                 ) : null}
-                <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 md:text-4xl dark:text-slate-100">
+                <h1 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-4xl">
                   Multi-Tenant Dashboard
                 </h1>
-                <p className="mt-3 max-w-3xl text-sm text-slate-600 md:text-base dark:text-slate-300">
-                  Daten werden automatisch über deine Membership geladen. Jeder Nutzer sieht nur die
+                <p className="mt-3 max-w-3xl text-sm text-slate-300 md:text-base">
+                  Daten werden automatisch Ã¼ber deine Membership geladen. Jeder Nutzer sieht nur die
                   eigene Organisation.
                 </p>
               </div>
@@ -837,11 +837,11 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
           ) : null}
 
           {isAdmin ? (
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <section className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
+              <h2 className="text-lg font-semibold text-white">
                 User zuweisen
               </h2>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-2 text-sm text-slate-300">
                 Weise registrierte User dieser Organisation als Member oder Admin zu.
               </p>
 
@@ -851,12 +851,12 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   value={inviteEmail}
                   onChange={(event) => setInviteEmail(event.target.value)}
                   placeholder="user@beispiel.de"
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
                 />
                 <select
                   value={inviteRole}
                   onChange={(event) => setInviteRole(event.target.value as "admin" | "member")}
-                  className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                  className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
                 >
                   <option value="member">member</option>
                   <option value="admin">admin</option>
@@ -864,16 +864,16 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                 <button
                   type="submit"
                   disabled={isAssigningMember}
-                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-500"
+                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                 >
                   {isAssigningMember ? "Speichern..." : "Zuweisen"}
                 </button>
               </form>
 
-              <div className="mt-5 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="mt-5 overflow-auto rounded-xl border border-white/8">
                 <table className="w-full min-w-170 border-collapse text-sm">
                   <thead>
-                    <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    <tr className="bg-white/3 text-left text-xs uppercase tracking-wide text-slate-400">
                       <th className="px-3 py-3">E-Mail</th>
                       <th className="px-3 py-3">Rolle</th>
                       <th className="px-3 py-3">Seit</th>
@@ -881,11 +881,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   </thead>
                   <tbody>
                     {memberships.map((item) => (
-                      <tr
-                        key={item.userId}
-                        className="border-t border-slate-100 text-slate-700 dark:border-slate-800 dark:text-slate-300"
-                      >
-                        <td className="px-3 py-3 font-medium dark:text-slate-100">
+                      <tr key={item.userId} className="border-t border-white/8 text-slate-300">
+                        <td className="px-3 py-3 font-medium text-white">
                           {item.email ?? "(keine E-Mail)"}
                         </td>
                         <td className="px-3 py-3">{item.role}</td>
@@ -904,44 +901,44 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
             {canCreateOrganization ? (
               <form
                 onSubmit={registerOrganization}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    <Building2 className="h-5 w-5 text-sky-700 dark:text-sky-400" />
+                  <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                    <Building2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                     Unternehmen registrieren
                   </h2>
                 </div>
 
-                <label className="mt-5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="mt-5 block text-sm font-medium text-slate-300">
                   Name
                 </label>
                 <input
                   value={organizationName}
                   onChange={(event) => setOrganizationName(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                  className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
                   placeholder="ACME GmbH"
                 />
 
                 {analytics ? (
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mt-2 text-xs text-slate-400">
                     Verbundene Firma: {analytics.organization.name}
                   </p>
                 ) : null}
 
-                <label className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label className="mt-4 block text-sm font-medium text-slate-300">
                   Punkte-Ratio (1 EUR = X Punkte)
                 </label>
                 <input
                   value={pointsRatio}
                   onChange={(event) => setPointsRatio(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-900"
+                  className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
                   type="number"
                   min="0.01"
                   step="0.01"
                 />
 
-                <button className="mt-6 inline-flex items-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-sky-600 dark:hover:bg-sky-500">
+                <button className="mt-6 inline-flex items-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-emerald-600 dark:hover:bg-emerald-500">
                   Tenant erstellen
                 </button>
 
@@ -952,31 +949,31 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                 ) : null}
               </form>
             ) : (
-              <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
+                <h2 className="text-lg font-semibold text-white">
                   Read-only Ansicht
                 </h2>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-2 text-sm text-slate-300">
                   Du bist als Member angemeldet und kannst nur Dashboard-Daten ansehen.
                 </p>
               </article>
             )}
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-                <Gauge className="h-5 w-5 text-sky-700 dark:text-sky-400" />
+            <div className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Gauge className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                 Organization Settings
               </h2>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Nur Admin-Mitglieder dürfen die Punkte-Ratio anpassen.
+              <p className="mt-2 text-sm text-slate-300">
+                Nur Admin-Mitglieder dÃ¼rfen die Punkte-Ratio anpassen.
               </p>
 
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={loadDashboardData}
-                  className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                 >
                   <LineChart className="h-4 w-4" />
                   Dashboard neu laden
@@ -985,18 +982,18 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
 
               <form
                 onSubmit={updateRatio}
-                className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800"
+                className="mt-5 border-t border-white/8 pt-5"
               >
                 {isAdmin ? (
                   <>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <label className="block text-sm font-medium text-slate-300">
                       Ratio aktualisieren
                     </label>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                       <input
                         value={pointsRatio}
                         onChange={(event) => setPointsRatio(event.target.value)}
-                        className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 dark:border-slate-700 dark:bg-slate-950 text-white dark:focus:border-emerald-400 dark:focus:ring-emerald-900"
                         type="number"
                         min="0.01"
                         step="0.01"
@@ -1008,21 +1005,21 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                     </div>
                   </>
                 ) : (
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
+                  <p className="text-sm text-slate-300">
                     Aktuelle Ratio: 1 EUR = {analytics?.organization.pointsRatio ?? "-"} Punkte
                   </p>
                 )}
               </form>
 
               {isAdmin ? (
-                <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-800">
+                <div className="mt-5 border-t border-white/8 pt-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <h3 className="text-sm font-semibold text-white">
                         API-Key neu generieren
                       </h3>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                        Der alte Key wird sofort ungültig. Der neue Klartext-Key wird nur einmal angezeigt.
+                      <p className="mt-1 text-sm text-slate-300">
+                        Der alte Key wird sofort ungÃ¼ltig. Der neue Klartext-Key wird nur einmal angezeigt.
                       </p>
                     </div>
                     <button
@@ -1051,7 +1048,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
               className={`rounded-2xl border px-4 py-3 text-sm ${
                 statusTone === "error"
                   ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300"
-                  : "border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900 dark:bg-sky-950/50 dark:text-sky-300"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300"
               }`}
             >
               {status}
@@ -1064,7 +1061,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                 <MetricCard
                   title="Kundenprofile"
                   value={String(analytics.analytics.customersCount)}
-                  icon={<Users className="h-4 w-4 text-sky-700 dark:text-sky-400" />}
+                  icon={<Users className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
                 />
                 <MetricCard
                   title="Transaktionen"
@@ -1079,7 +1076,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                 <MetricCard
                   title="Punkte Earn"
                   value={String(pointsSummary.earned)}
-                  icon={<ArrowUpRight className="h-4 w-4 text-cyan-700 dark:text-cyan-400" />}
+                  icon={<ArrowUpRight className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
                 />
                 <MetricCard
                   title="Punkte Redeem"
@@ -1089,26 +1086,23 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
               </section>
 
               <section className="grid gap-5 xl:grid-cols-[1.1fr,0.9fr]">
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
+                  <h3 className="text-lg font-semibold text-white">
                     Punkte-Historie pro Tag
                   </h3>
                   <div className="mt-4 space-y-2">
                     {orderedHistoryDays.length === 0 ? (
-                      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
+                      <p className="rounded-xl border border-dashed border-white/12 bg-white/4 px-4 py-6 text-center text-sm text-slate-400">
                         Noch keine Transaktionen vorhanden.
                       </p>
                     ) : (
                       orderedHistoryDays.map(([day, data]) => (
-                        <div
-                          key={day}
-                          className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-700"
-                        >
-                          <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                        <div key={day} className="flex items-center justify-between rounded-xl border border-white/8 px-4 py-3">
+                          <p className="text-sm font-medium text-slate-200">
                             {day}
                           </p>
                           <div className="flex items-center gap-3 text-xs sm:text-sm">
-                            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2.5 py-1 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
                               <ArrowUpRight className="h-3.5 w-3.5" />
                               {data.earn}
                             </span>
@@ -1123,25 +1117,25 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   </div>
                 </article>
 
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      <h3 className="text-lg font-semibold text-white">
                         Top-Kunden
                       </h3>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      <p className="mt-1 text-sm text-slate-300">
                         Sortiert nach Umsatz, danach nach Punktestand.
                       </p>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <span className="rounded-full bg-white/6 px-3 py-1 text-xs font-medium text-slate-300">
                       {topCustomers.length} sichtbar
                     </span>
                   </div>
 
-                  <div className="mt-4 overflow-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="mt-4 overflow-auto rounded-xl border border-white/8">
                     <table className="w-full min-w-170 border-collapse text-sm">
                       <thead>
-                        <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                        <tr className="bg-white/3 text-left text-xs uppercase tracking-wide text-slate-400">
                           <th className="px-3 py-3">#</th>
                           <th className="px-3 py-3">Kunde</th>
                           <th className="px-3 py-3">Punkte</th>
@@ -1153,7 +1147,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                         {topCustomers.length === 0 ? (
                           <tr>
                             <td
-                              className="px-3 py-6 text-center text-slate-500 dark:text-slate-400"
+                              className="px-3 py-6 text-center text-slate-400"
                               colSpan={5}
                             >
                               Noch keine Kundendaten vorhanden.
@@ -1161,14 +1155,11 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                           </tr>
                         ) : (
                           topCustomers.map((profile, index) => (
-                            <tr
-                              key={profile.id}
-                              className="border-t border-slate-100 text-slate-700 dark:border-slate-800 dark:text-slate-300"
-                            >
-                              <td className="px-3 py-3 font-medium text-slate-500 dark:text-slate-400">
+                            <tr key={profile.id} className="border-t border-white/8 text-slate-300">
+                              <td className="px-3 py-3 font-medium text-slate-400">
                                 {index + 1}
                               </td>
-                              <td className="px-3 py-3 font-medium dark:text-slate-100">
+                              <td className="px-3 py-3 font-medium text-white">
                                 {profile.externalCustomerId}
                               </td>
                               <td className="px-3 py-3">{profile.pointsBalance}</td>
@@ -1186,24 +1177,24 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
               </section>
 
               <section className="grid gap-5 xl:grid-cols-[0.95fr,1.05fr]">
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      <AlertTriangle className="h-5 w-5 text-amber-300" />
+                      <h3 className="text-lg font-semibold text-white">
                         Hinweise
                       </h3>
                     </div>
-                    <div className="inline-flex gap-1 rounded-lg border border-slate-300 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
+                    <div className="inline-flex gap-1 rounded-xl border border-white/12 bg-white/4 p-1">
                       {(["7d", "14d", "30d", "all"] as const).map((option) => (
                         <button
                           key={option}
                           type="button"
                           onClick={() => setAlertsTimeframe(option)}
-                          className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+                          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
                             alertsTimeframe === option
-                              ? "bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-slate-100"
-                              : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                              ? "bg-emerald-400/20 text-emerald-200 ring-1 ring-emerald-300/30"
+                              : "text-slate-400 hover:bg-white/8 hover:text-slate-200"
                           }`}
                         >
                           {option === "all" ? "Alle" : option}
@@ -1213,8 +1204,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   </div>
                   <div className="mt-4 space-y-3">
                     {dashboardAlerts.length === 0 ? (
-                      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
-                        Keine Auffälligkeiten im aktuellen Datensatz.
+                      <p className="rounded-xl border border-dashed border-white/12 bg-white/3 px-4 py-6 text-center text-sm text-slate-400">
+                        Keine AuffÃ¤lligkeiten im aktuellen Datensatz.
                       </p>
                     ) : (
                       dashboardAlerts.map((alert) => (
@@ -1222,28 +1213,28 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                           key={alert.title}
                           className={`rounded-xl border px-4 py-3 text-sm ${
                             alert.tone === "warning"
-                              ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+                              ? "border-amber-300/30 bg-amber-500/10 text-amber-200"
                               : alert.tone === "success"
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
-                                : "border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300"
+                                ? "border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
+                                : "border-sky-300/30 bg-sky-500/10 text-sky-200"
                           }`}
                         >
-                          <p className="font-semibold">{alert.title}</p>
-                          <p className="mt-1 leading-6">{alert.body}</p>
+                          <p className="font-semibold tracking-wide">{alert.title}</p>
+                          <p className="mt-1 leading-6 text-current/90">{alert.body}</p>
                         </div>
                       ))
                     )}
                   </div>
                 </article>
 
-                <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                   <div className="flex items-center gap-2">
-                    <Download className="h-5 w-5 text-sky-700 dark:text-sky-400" />
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    <Download className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                    <h3 className="text-lg font-semibold text-white">
                       Export
                     </h3>
                   </div>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  <p className="mt-2 text-sm text-slate-300">
                     Lade den aktuellen Stand als JSON-Snapshot oder Kundendaten als CSV herunter.
                   </p>
 
@@ -1251,14 +1242,14 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                     <button
                       type="button"
                       onClick={() => downloadDashboardSnapshot("json")}
-                      className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
+                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                     >
                       JSON exportieren
                     </button>
                     <button
                       type="button"
                       onClick={() => downloadDashboardSnapshot("csv")}
-                      className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/6 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-white/10"
                     >
                       CSV exportieren
                     </button>
@@ -1267,7 +1258,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
               </section>
             </>
           ) : (
-            <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+            <section className="rounded-3xl border border-dashed border-white/12 bg-[#07140d] px-6 py-10 text-center text-sm text-slate-400 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
               Noch keine Analytics geladen. Melde dich an und lade dann dein Dashboard.
             </section>
           )}
@@ -1287,14 +1278,16 @@ function MetricCard({
   icon: ReactNode;
 }) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <article className="rounded-2xl border border-white/8 bg-white/3 p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm text-slate-600 dark:text-slate-400">{title}</p>
+        <p className="text-sm uppercase tracking-[0.14em] text-slate-400">{title}</p>
         {icon}
       </div>
-      <p className="mt-2 text-xl font-semibold text-slate-900 md:text-2xl dark:text-slate-100">
+      <p className="mt-2 text-xl font-semibold text-white md:text-2xl">
         {value}
       </p>
     </article>
   );
 }
+
+

@@ -20,6 +20,7 @@ export function WeeksProfitChart({ data }: PropsType) {
     chart: {
       type: "bar",
       stacked: true,
+      foreColor: "#94a3b8",
       toolbar: {
         show: false,
       },
@@ -56,6 +57,7 @@ export function WeeksProfitChart({ data }: PropsType) {
 
     grid: {
       strokeDashArray: 5,
+      borderColor: "rgba(148, 163, 184, 0.2)",
       xaxis: {
         lines: {
           show: false,
@@ -75,6 +77,11 @@ export function WeeksProfitChart({ data }: PropsType) {
       axisTicks: {
         show: false,
       },
+      labels: {
+        style: {
+          colors: "#94a3b8",
+        },
+      },
     },
     legend: {
       position: "top",
@@ -82,6 +89,9 @@ export function WeeksProfitChart({ data }: PropsType) {
       fontFamily: "inherit",
       fontWeight: 500,
       fontSize: "14px",
+      labels: {
+        colors: ["#cbd5e1"],
+      },
       markers: {
         size: 9,
         shape: "circle",

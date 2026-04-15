@@ -21,6 +21,7 @@ export function CampaignVisitorsChart({ data }: PropsType) {
       fontFamily: "Satoshi, sans-serif",
       type: "bar",
       height: 200,
+      foreColor: "#94a3b8",
       toolbar: {
         show: false,
       },
@@ -47,15 +48,24 @@ export function CampaignVisitorsChart({ data }: PropsType) {
       axisTicks: {
         show: false,
       },
+      labels: {
+        style: {
+          colors: "#94a3b8",
+        },
+      },
     },
     legend: {
       show: true,
       position: "top",
       horizontalAlign: "left",
       fontFamily: "Satoshi",
+      labels: {
+        colors: ["#cbd5e1"],
+      },
     },
     grid: {
       strokeDashArray: 7,
+      borderColor: "rgba(148, 163, 184, 0.2)",
       yaxis: {
         lines: {
           show: true,

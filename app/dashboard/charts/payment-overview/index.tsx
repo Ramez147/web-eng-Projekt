@@ -18,12 +18,12 @@ export async function PaymentsOverview({
   return (
     <div
       className={cn(
-        "grid gap-2 rounded-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card",
+        "grid gap-2 rounded-3xl border border-white/8 bg-[#07140d] px-7.5 pb-6 pt-7.5 shadow-[0_16px_50px_rgba(0,0,0,0.35)]",
         className,
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-body-2xlg font-bold text-black">
+        <h2 className="text-body-2xlg font-bold text-white">
           Payments Overview
         </h2>
 
@@ -32,19 +32,19 @@ export async function PaymentsOverview({
 
       <PaymentsOverviewChart data={data} />
 
-      <dl className="grid divide-stroke text-center dark:divide-dark-3 sm:grid-cols-2 sm:divide-x [&>div]:flex [&>div]:flex-col-reverse [&>div]:gap-1">
-        <div className="dark:border-dark-3 max-sm:mb-3 max-sm:border-b max-sm:pb-3">
-          <dt className="text-xl font-bold text-dark dark:text-white">
+      <dl className="grid divide-white/8 text-center sm:grid-cols-2 sm:divide-x [&>div]:flex [&>div]:flex-col-reverse [&>div]:gap-1">
+        <div className="max-sm:mb-3 max-sm:border-b max-sm:border-white/8 max-sm:pb-3">
+          <dt className="text-xl font-bold text-white">
             ${standardFormat(data.revenueEur.reduce((acc, { y }) => acc + y, 0))}
           </dt>
-          <dd className="font-medium dark:text-dark-6">Revenue (EUR)</dd>
+          <dd className="font-medium uppercase tracking-[0.16em] text-slate-400">Revenue (EUR)</dd>
         </div>
 
         <div>
-          <dt className="text-xl font-bold text-dark dark:text-white">
+          <dt className="text-xl font-bold text-white">
             {standardFormat(data.redeemedPoints.reduce((acc, { y }) => acc + y, 0))}
           </dt>
-          <dd className="font-medium dark:text-dark-6">Redeemed Points</dd>
+          <dd className="font-medium uppercase tracking-[0.16em] text-slate-400">Redeemed Points</dd>
         </div>
       </dl>
     </div>

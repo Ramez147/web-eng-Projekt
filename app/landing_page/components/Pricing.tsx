@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 enum PopularPlanType {
   NO = 0,
@@ -22,6 +22,7 @@ interface PricingProps {
   description: string;
   buttonText: string;
   benefitList: string[];
+  missingList?: string[];
 }
 
 const pricingList: PricingProps[] = [
@@ -37,6 +38,10 @@ const pricingList: PricingProps[] = [
       "1 Kampagne",
       "E-Mail Support",
       "API Read Access",
+    ],
+    missingList: [
+      "Keine REST API Writes",
+      "Keine Echtzeit-Segmentierung",
     ],
   },
   {
@@ -134,6 +139,22 @@ export const Pricing = () => {
                     <h3 className="ml-2">{benefit}</h3>
                   </span>
                 ))}
+
+                {pricing.missingList?.length ? (
+                  <div className="pt-2 space-y-2">
+                    {pricing.missingList.map((missing: string) => (
+                      <span
+                        key={missing}
+                        className="flex items-center text-muted-foreground"
+                      >
+                        <X className="h-4 w-4 text-red-500" />
+                        <h3 className="ml-2 text-sm line-through decoration-red-400/70">
+                          {missing}
+                        </h3>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </CardFooter>
           </Card>

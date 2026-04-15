@@ -49,10 +49,10 @@ export function PeriodPicker({ defaultValue, sectionKey, items }: PropsType) {
   };
 
   return (
-    <label className="inline-flex items-center gap-2 text-sm text-slate-600">
+    <label className="inline-flex items-center gap-2 text-sm text-slate-400">
       <span className="sr-only">Select period</span>
       <select
-        className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-700"
+        className="rounded-xl border border-white/12 bg-white/6 px-2.5 py-1.5 text-sm text-slate-200 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-300/25"
         defaultValue={defaultValue}
         onChange={(event) => onChange(event.target.value)}
       >

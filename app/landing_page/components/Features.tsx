@@ -41,6 +41,16 @@ const featureList: string[] = [
   "Realtime Events",
   "Fraud Controls",
   "Customer Segments",
+  "Multi-Tenant",
+  "POS Integration",
+  "Coupon Engine",
+  "Webhook Retry",
+  "A/B Kampagnen",
+  "Referral Program",
+  "Loyalty Wallet",
+  "GDPR Ready",
+  "Role Permissions",
+  "Audit Logs",
 ];
 
 export const Features = () => {
@@ -51,24 +61,30 @@ export const Features = () => {
     >
       <h2 className="text-3xl lg:text-4xl font-bold md:text-center">
         Loyalty-Features, die{" "}
-        <span className="bg-gradient-to-b from-primary/60 to-primary bg-clip-text">
+        <span className="bg-linear-to-b from-primary/60 to-primary bg-clip-text">
           Umsatz und Wiederkäufe
         </span>
         {' '}
         steigern
       </h2>
 
-      <div className="flex flex-wrap md:justify-center gap-4">
-        {featureList.map((feature: string) => (
-          <div key={feature}>
-            <Badge
-              variant="secondary"
-              className="text-sm"
-            >
-              {feature}
-            </Badge>
+      <div className="relative overflow-hidden rounded-xl py-2">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-linear-to-r from-background to-transparent sm:w-20" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-linear-to-l from-background to-transparent sm:w-20" />
+
+        <div className="feature-marquee">
+          <div className="feature-marquee-track">
+            {[...featureList, ...featureList].map((feature: string, index: number) => (
+              <Badge
+                key={`${feature}-${index}`}
+                variant="secondary"
+                className="shrink-0 text-sm"
+              >
+                {feature}
+              </Badge>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

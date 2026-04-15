@@ -18,12 +18,16 @@ export function DonutChart({ data, centerLabel = "Total" }: PropsType) {
     chart: {
       type: "donut",
       fontFamily: "inherit",
+      foreColor: "#cbd5e1",
     },
     colors: ["#5750F1", "#5475E5", "#8099EC", "#ADBCF2"],
     labels: data.map((item) => item.name),
     legend: {
       show: true,
       position: "bottom",
+      labels: {
+        colors: ["#cbd5e1"],
+      },
       itemMargin: {
         horizontal: 10,
         vertical: 5,
@@ -50,11 +54,13 @@ export function DonutChart({ data, centerLabel = "Total" }: PropsType) {
               label: centerLabel,
               fontSize: "16px",
               fontWeight: "400",
+              color: "#94a3b8",
             },
             value: {
               show: true,
               fontSize: "28px",
               fontWeight: "bold",
+              color: "#f8fafc",
               formatter: (val) => compactFormat(+val),
             },
           },
