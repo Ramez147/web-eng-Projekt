@@ -76,6 +76,8 @@ export function CampaignVisitorsChart({ data }: PropsType) {
       opacity: 1,
     },
     tooltip: {
+      theme: "light",
+      cssClass: "chart-tooltip-readable",
       x: {
         show: false,
       },

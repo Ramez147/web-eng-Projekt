@@ -439,6 +439,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
   const currentRole = analytics?.membership.role;
   const isAdmin = currentRole === "admin";
   const canCreateOrganization = isAdmin || needsOrganizationSetup;
+  const showOrganizationCreateWidget = currentRole !== "member" && canCreateOrganization;
 
   async function registerOrganization(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -897,8 +898,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
             </section>
           ) : null}
 
-          <section className="grid gap-5 lg:grid-cols-2">
-            {canCreateOrganization ? (
+          <section className={`grid gap-5 ${showOrganizationCreateWidget ? "lg:grid-cols-2" : "lg:grid-cols-1"}`}>
+            {showOrganizationCreateWidget ? (
               <form
                 onSubmit={registerOrganization}
                 className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]"
@@ -948,7 +949,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   </div>
                 ) : null}
               </form>
-            ) : (
+            ) : currentRole !== "member" ? (
               <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                 <h2 className="text-lg font-semibold text-white">
                   Read-only Ansicht
@@ -957,7 +958,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   Du bist als Member angemeldet und kannst nur Dashboard-Daten ansehen.
                 </p>
               </article>
-            )}
+            ) : null}
 
             <div className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-white">

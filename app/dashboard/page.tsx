@@ -1,4 +1,5 @@
 import { CustomerDataTable } from "@/components/dashboard/CustomerDataTable";
+import { getCurrentMembershipContext } from "@/lib/loyalty/user-membership";
 import { DashboardOverviewCharts, DashboardOverviewHeader } from "./overview";
 import { LoyaltyConsole } from "./tenant-console";
 
@@ -29,6 +30,16 @@ function parseSelectedTimeFrame(input?: string) {
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const selectedTimeFrames = parseSelectedTimeFrame(params?.selected_time_frame);
+  let currentRole: "admin" | "member" | null = null;
+
+  try {
+    const membership = await getCurrentMembershipContext();
+    currentRole = membership.role;
+  } catch {
+    currentRole = null;
+  }
+
+  const isMember = currentRole === "member";
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
@@ -46,7 +57,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         campaignVisitors: selectedTimeFrames.campaign_visitors,
         transactionMix: selectedTimeFrames.transaction_mix ?? selectedTimeFrames.used_devices,
       }} />
-      <CustomerDataTable />
+      {!isMember ? <CustomerDataTable /> : null}
       <LoyaltyConsole compact />
     </main>
   );

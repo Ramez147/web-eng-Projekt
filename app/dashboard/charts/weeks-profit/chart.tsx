@@ -100,6 +100,10 @@ export function WeeksProfitChart({ data }: PropsType) {
     fill: {
       opacity: 1,
     },
+    tooltip: {
+      theme: "light",
+      cssClass: "chart-tooltip-readable",
+    },
   };
   return (
     <div className="-ml-3.5 mt-3">

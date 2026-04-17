@@ -1,7 +1,6 @@
 import { Button } from "./ui/button";
-import { buttonVariants } from "./ui/button";
 import { HeroCards } from "./HeroCards";
-import { ArrowRight } from "lucide-react";
+import { HeroGlowButton } from "./HeroGlowButton";
 
 export const Hero = () => {
   return (
@@ -36,16 +35,7 @@ export const Hero = () => {
             Kostenlos starten
           </Button>
 
-          <a
-            rel="noreferrer noopener"
-            href="#cta"
-            className={`w-full sm:w-auto ${buttonVariants({
-              variant: "outline",
-            })}`}
-          >
-            Demo vereinbaren
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </a>
+          <HeroGlowButton href="#cta" label="Demo vereinbaren" />
         </div>
       </div>
 
