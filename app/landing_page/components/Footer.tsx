@@ -1,171 +1,149 @@
 import { LogoIcon } from "./Icons";
 import Link from "next/link";
 
+const footerGroups = [
+  {
+    title: "Produkt",
+    links: [
+      { label: "Features", href: "#features" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "FAQ", href: "#faq" },
+    ],
+  },
+  {
+    title: "Integrationen",
+    links: [
+      { label: "Shopify", href: "#features" },
+      { label: "WooCommerce", href: "#features" },
+      { label: "API Docs", href: "#cta" },
+    ],
+  },
+  {
+    title: "Use Cases",
+    links: [
+      { label: "Rewards", href: "#features" },
+      { label: "White-Label", href: "#pricing" },
+      { label: "Demo", href: "#cta" },
+    ],
+  },
+  {
+    title: "Ressourcen",
+    links: [
+      { label: "Case Study", href: "#testimonials" },
+      { label: "Stack", href: "#sponsors" },
+      { label: "Kontakt", href: "#footer" },
+    ],
+  },
+];
+
 export const Footer = () => {
   return (
-    <footer id="footer">
-      <hr className="w-11/12 mx-auto" />
+    <footer
+      id="footer"
+      className="footer-shell"
+    >
+      <section className="container py-16 md:py-20">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <Link
+              href="/"
+              className="font-bold text-xl flex items-center"
+            >
+              <LogoIcon />
+              LoyaltyFlow
+            </Link>
+            <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
+              Loyalty-as-a-Service fuer Marken, die Kundenbindung als Produkt denken.
+            </p>
 
-      <section className="container py-20 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-x-12 gap-y-8">
-        <div className="col-span-full xl:col-span-2">
+            <div className="footer-trust">
+              <div>
+                <span className="footer-trust-value">99.9%</span>
+                <span className="footer-trust-label">Uptime</span>
+              </div>
+              <div>
+                <span className="footer-trust-value">DSGVO</span>
+                <span className="footer-trust-label">Compliant</span>
+              </div>
+              <div>
+                <span className="footer-trust-value">24/7</span>
+                <span className="footer-trust-label">Monitoring</span>
+              </div>
+            </div>
+          </div>
+
+          {footerGroups.map((group) => (
+            <div
+              key={group.title}
+              className="footer-link-column"
+            >
+              <h3 className="font-semibold text-base">{group.title}</h3>
+              <div className="mt-3 space-y-2.5">
+                {group.links.map((link) => (
+                  <a
+                    key={link.label}
+                    rel="noreferrer noopener"
+                    href={link.href}
+                    className="footer-link"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="footer-cta">
+            <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">Naechster Schritt</p>
+            <h3 className="mt-2 text-xl font-semibold leading-tight">Starte heute mit einem kostenlosen Architektur-Check</h3>
+            <a
+              rel="noreferrer noopener"
+              href="#cta"
+              className="footer-cta-button"
+            >
+              Demo anfragen
+            </a>
+          </div>
+        </div>
+
+        <div className="footer-bottom-bar">
           <Link
             href="/"
-            className="font-bold text-xl flex"
+            className="font-bold text-lg flex items-center"
           >
             <LogoIcon />
             LoyaltyFlow
           </Link>
-          <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-            Loyalty-as-a-Service für Marken, die Kundenbindung als Produkt
-            denken.
+
+          <p className="text-sm text-muted-foreground">
+            &copy; 2026 LoyaltyFlow. Gemacht fuer Teams, die Wachstum messbar machen.
           </p>
-        </div>
 
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-lg">Product</h3>
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#features"
-              className="opacity-60 hover:opacity-100"
-            >
-              Github
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#pricing"
-              className="opacity-60 hover:opacity-100"
-            >
-              Pricing
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#faq"
-              className="opacity-60 hover:opacity-100"
-            >
-              FAQ
-            </a>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-lg">Integrations</h3>
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#features"
-              className="opacity-60 hover:opacity-100"
-            >
-              Shopify
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#features"
-              className="opacity-60 hover:opacity-100"
-            >
-              WooCommerce
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#cta"
-              className="opacity-60 hover:opacity-100"
-            >
-              API Docs
-            </a>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-lg">Use Cases</h3>
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#features"
-              className="opacity-60 hover:opacity-100"
-            >
-              Rewards
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#pricing"
-              className="opacity-60 hover:opacity-100"
-            >
-              White-label
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#cta"
-              className="opacity-60 hover:opacity-100"
-            >
-              Demo
-            </a>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-lg">Resources</h3>
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#testimonials"
-              className="opacity-60 hover:opacity-100"
-            >
-              Case Study
-            </a>
-          </div>
-
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#sponsors"
-              className="opacity-60 hover:opacity-100"
-            >
-              Stack
-            </a>
-          </div>
-
-          <div>
+          <div className="footer-legal-links">
             <a
               rel="noreferrer noopener"
               href="#footer"
-              className="opacity-60 hover:opacity-100"
+              className="footer-link"
             >
-              Contact
+              Impressum
+            </a>
+            <a
+              rel="noreferrer noopener"
+              href="#footer"
+              className="footer-link"
+            >
+              Datenschutz
+            </a>
+            <a
+              rel="noreferrer noopener"
+              target="_blank"
+              href="https://www.linkedin.com/in/leopoldo-miranda/"
+              className="footer-link"
+            >
+              Your Team
             </a>
           </div>
         </div>
-      </section>
-
-      <section className="container pb-14 text-center">
-        <h3>
-          &copy; 2026 LoyaltyFlow made by{" "}
-          <a
-            rel="noreferrer noopener"
-            target="_blank"
-            href="https://www.linkedin.com/in/leopoldo-miranda/"
-            className="text-primary transition-all border-primary hover:border-b-2"
-          >
-            Your Team
-          </a>
-        </h3>
       </section>
     </footer>
   );

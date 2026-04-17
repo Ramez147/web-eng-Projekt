@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint" ,
+    "lint": "eslint",
     "test": "jest"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "react-dom": "19.2.4",
     "stripe": "^22.0.1",
     "tailwind-merge": "^3.5.0",
+    "three": "^0.184.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.184.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "jest-environment-jsdom": "^30.3.0",
@@ -46,6 +48,4 @@
     "ts-jest": "^29.4.9",
     "typescript": "^5"
   }
-  
-
 }

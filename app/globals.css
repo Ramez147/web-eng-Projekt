@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #eef3ec;
   --foreground: #171717;
 }
 
 html.light {
-  --background: #ffffff;
+  --background: #eef3ec;
   --foreground: #171717;
 }
 
