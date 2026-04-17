@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "2) Earn Points",
+      "name": "2) Collect Points",
       "request": {
         "method": "POST",
         "header": [
@@ -52,12 +52,12 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"externalCustomerId\": \"{{externalCustomerId}}\",\n  \"amountEur\": 120.5,\n  \"metadata\": {\n    \"orderId\": \"order-1001\"\n  }\n}"
+          "raw": "{\n  \"externalCustomerId\": \"{{externalCustomerId}}\",\n  \"amountEur\": 120.5,\n  \"metadata\": {\n    \"orderId\": \"order-1001\"\n  }\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/v1/points/earn",
+          "raw": "{{baseUrl}}/api/v1/collect",
           "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "points", "earn"]
+          "path": ["api", "v1", "collect"]
         }
       }
     },

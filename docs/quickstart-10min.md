@@ -23,21 +23,21 @@ Werte aus der Antwort speichern:
 - `organization.id` -> `ORG_ID`
 - `apiKey` -> `API_KEY`
 
-## 3. Punkte vergeben (2 Minuten)
+## 3. Punkte sammeln (2 Minuten)
 
-`POST /api/v1/points/earn`
+`POST /api/v1/collect`
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/points/earn" \
+curl -X POST "http://localhost:3000/api/v1/collect" \
   -H "Content-Type: application/json" \
   -H "x-api-key: API_KEY" \
-  -d "{\"organizationId\":\"ORG_ID\",\"externalCustomerId\":\"customer-123\",\"amountEur\":59.9,\"metadata\":{\"orderId\":\"order-1001\"}}"
+  -d "{\"externalCustomerId\":\"customer-123\",\"amountEur\":59.9,\"metadata\":{\"orderId\":\"order-1001\"}}"
 ```
 
 Erwartung:
 
 - Profil wird automatisch erstellt (falls neu)
-- `pointsEarned` und `newPointsBalance` kommen zurueck
+- `pointsCollected` und `newPointsBalance` kommen zurueck
 
 ## 4. Punkte einloesen (2 Minuten)
 
@@ -92,6 +92,6 @@ curl -X PATCH "http://localhost:3000/api/v1/organizations/ORG_ID/ratio" \
 
 Wenn das klappt, integriere die Calls ins Unternehmens-Backend:
 
-- Nach erfolgreichem Checkout -> `earn`
+- Nach erfolgreichem Checkout -> `collect`
 - Vor Reward-Freischaltung -> `redeem`
 - Fuer interne Reports -> `analytics/overview`
