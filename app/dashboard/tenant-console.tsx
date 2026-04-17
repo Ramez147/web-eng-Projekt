@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -11,10 +11,9 @@ import {
   LineChart,
   RefreshCw,
   ShieldCheck,
-  Users,
-  Wallet,
   LogOut,
 } from "lucide-react";
+import { AnalyticsMetricCards } from "./analytics-metric-cards";
 import { generateApiKey } from "./actions";
 
 type RegisterResponse = {
@@ -836,6 +835,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
               </div>
             </section>
           ) : null}
+          
 
           {isAdmin ? (
             <section className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
@@ -1058,33 +1058,15 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
 
           {analytics ? (
             <>
-              <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <MetricCard
-                  title="Kundenprofile"
-                  value={String(analytics.analytics.customersCount)}
-                  icon={<Users className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
+              {!compact ? (
+                <AnalyticsMetricCards
+                  customersCount={analytics.analytics.customersCount}
+                  totalTransactions={analytics.analytics.totalTransactions}
+                  totalRevenueEur={analytics.analytics.totalRevenueEur}
+                  earnedPoints={pointsSummary.earned}
+                  redeemedPoints={pointsSummary.redeemed}
                 />
-                <MetricCard
-                  title="Transaktionen"
-                  value={String(analytics.analytics.totalTransactions)}
-                  icon={<LineChart className="h-4 w-4 text-fuchsia-700 dark:text-fuchsia-400" />}
-                />
-                <MetricCard
-                  title="Gesamtumsatz"
-                  value={`${analytics.analytics.totalRevenueEur.toFixed(2)} EUR`}
-                  icon={<Wallet className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
-                />
-                <MetricCard
-                  title="Punkte Earn"
-                  value={String(pointsSummary.earned)}
-                  icon={<ArrowUpRight className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />}
-                />
-                <MetricCard
-                  title="Punkte Redeem"
-                  value={String(pointsSummary.redeemed)}
-                  icon={<ArrowDownLeft className="h-4 w-4 text-orange-700 dark:text-orange-400" />}
-                />
-              </section>
+              ) : null}
 
               <section className="grid gap-5 xl:grid-cols-[1.1fr,0.9fr]">
                 <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
@@ -1266,28 +1248,6 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
         </>
       )}
     </div>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: string;
-  icon: ReactNode;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/8 bg-white/3 p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm uppercase tracking-[0.14em] text-slate-400">{title}</p>
-        {icon}
-      </div>
-      <p className="mt-2 text-xl font-semibold text-white md:text-2xl">
-        {value}
-      </p>
-    </article>
   );
 }
 

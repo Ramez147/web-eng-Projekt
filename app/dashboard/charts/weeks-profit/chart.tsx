@@ -101,7 +101,7 @@ export function WeeksProfitChart({ data }: PropsType) {
       opacity: 1,
     },
     tooltip: {
-      theme: "light",
+      theme: "dark",
       cssClass: "chart-tooltip-readable",
     },
   };

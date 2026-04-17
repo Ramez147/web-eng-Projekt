@@ -35,6 +35,14 @@ export type OverviewKpis = {
   avgPointsPerEarn: number;
 };
 
+export type AnalyticsMetricCardsData = {
+  customersCount: number;
+  totalTransactions: number;
+  totalRevenueEur: number;
+  earnedPoints: number;
+  redeemedPoints: number;
+};
+
 type TransactionRow = {
   transaction_type: "earn" | "redeem";
   points: number;
@@ -416,5 +424,31 @@ export async function getOverviewKpis(timeFrame = "monthly"): Promise<OverviewKp
     activeCustomers,
     redeemRate: Math.round(redeemRate * 10) / 10,
     avgPointsPerEarn: Math.round(avgPointsPerEarn),
+  };
+}
+
+export async function getAnalyticsMetricCardsData(
+  timeFrame = "monthly",
+): Promise<AnalyticsMetricCardsData> {
+  const normalizedTimeFrame = normalizeRangeTimeFrame(timeFrame);
+  const { transactions } = await getDashboardSourceData();
+  const rangeStart = getRangeStart(normalizedTimeFrame, new Date());
+
+  const inRange = transactions.filter((tx) => new Date(tx.created_at) >= rangeStart);
+  const earnTransactions = inRange.filter((tx) => tx.transaction_type === "earn");
+  const redeemTransactions = inRange.filter((tx) => tx.transaction_type === "redeem");
+
+  const customersCount = new Set(inRange.map((tx) => tx.profile_id)).size;
+  const totalTransactions = inRange.length;
+  const totalRevenueEur = earnTransactions.reduce((sum, tx) => sum + Number(tx.eur_amount), 0);
+  const earnedPoints = earnTransactions.reduce((sum, tx) => sum + tx.points, 0);
+  const redeemedPoints = redeemTransactions.reduce((sum, tx) => sum + tx.points, 0);
+
+  return {
+    customersCount,
+    totalTransactions,
+    totalRevenueEur: Math.round(totalRevenueEur * 100) / 100,
+    earnedPoints: Math.round(earnedPoints),
+    redeemedPoints: Math.round(redeemedPoints),
   };
 }

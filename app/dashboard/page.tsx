@@ -1,7 +1,9 @@
 import { CustomerDataTable } from "@/components/dashboard/CustomerDataTable";
 import { getCurrentMembershipContext } from "@/lib/loyalty/user-membership";
+import { getAnalyticsMetricCardsData } from "@/services/charts.services";
 import { DashboardOverviewCharts, DashboardOverviewHeader } from "./overview";
 import { LoyaltyConsole } from "./tenant-console";
+import { AnalyticsMetricCards } from "./analytics-metric-cards";
 
 type DashboardPageProps = {
   searchParams?: Promise<{
@@ -30,6 +32,8 @@ function parseSelectedTimeFrame(input?: string) {
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const selectedTimeFrames = parseSelectedTimeFrame(params?.selected_time_frame);
+  const globalTimeFrame = selectedTimeFrames.global ?? "monthly";
+  const analyticsMetricCardsData = await getAnalyticsMetricCardsData(globalTimeFrame);
   let currentRole: "admin" | "member" | null = null;
 
   try {
@@ -50,6 +54,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         campaignVisitors: selectedTimeFrames.campaign_visitors,
         transactionMix: selectedTimeFrames.transaction_mix ?? selectedTimeFrames.used_devices,
       }} />
+      <AnalyticsMetricCards
+        customersCount={analyticsMetricCardsData.customersCount}
+        totalTransactions={analyticsMetricCardsData.totalTransactions}
+        totalRevenueEur={analyticsMetricCardsData.totalRevenueEur}
+        earnedPoints={analyticsMetricCardsData.earnedPoints}
+        redeemedPoints={analyticsMetricCardsData.redeemedPoints}
+      />
+      
       <DashboardOverviewCharts timeFrames={{
         global: selectedTimeFrames.global,
         paymentsOverview: selectedTimeFrames.payments_overview,

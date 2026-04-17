@@ -5,7 +5,7 @@ import { CampaignVisitors } from "./charts/campiagn-visitors";
 import { PaymentsOverview } from "./charts/payment-overview";
 import { LogoutButton } from "./logout-button";
 import { TransactionMix } from "./charts/used-devices";
-import { WeeksProfit } from "./charts/weeks-profit";
+import { WeeksProfit as ProfitThisWeek } from "./charts/weeks-profit";
 
 type PropsType = {
   timeFrames?: {
@@ -79,45 +79,52 @@ export async function DashboardOverviewCharts({ timeFrames }: PropsType) {
 
   return (
     <section className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-white/8 bg-white/3 p-3.5">
+      {/* <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="dashboard-widget-glow rounded-xl border border-white/8 bg-white/3 p-3.5">
           <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Revenue</p>
           <p className="mt-1.5 text-xl font-bold text-white">
             ${standardFormat(kpis.revenueEur)}
           </p>
         </div>
-        <div className="rounded-xl border border-white/8 bg-white/3 p-3.5">
+        <div className="dashboard-widget-glow rounded-xl border border-white/8 bg-white/3 p-3.5">
           <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Aktive Kunden</p>
           <p className="mt-1.5 text-xl font-bold text-white">
             {standardFormat(kpis.activeCustomers)}
           </p>
         </div>
-        <div className="rounded-xl border border-white/8 bg-white/3 p-3.5">
+        <div className="dashboard-widget-glow rounded-xl border border-white/8 bg-white/3 p-3.5">
           <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Redeem-Quote</p>
           <p className="mt-1.5 text-xl font-bold text-white">
             {kpis.redeemRate}%
           </p>
         </div>
-        <div className="rounded-xl border border-white/8 bg-white/3 p-3.5">
+        <div className="dashboard-widget-glow rounded-xl border border-white/8 bg-white/3 p-3.5">
           <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Avg. Points / Earn</p>
           <p className="mt-1.5 text-xl font-bold text-white">
             {standardFormat(kpis.avgPointsPerEarn)}
           </p>
         </div>
-      </div>
+      </div> */}
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <div className="h-full">
-          <PaymentsOverview timeFrame={paymentsOverviewTimeFrame} className="h-full" />
-        </div>
-        <div className="h-full">
-          <CampaignVisitors className="h-full" timeFrame={campaignVisitorsTimeFrame} />
-        </div>
-        <div className="h-full">
-          <TransactionMix timeFrame={transactionMixTimeFrame} className="h-full" />
-        </div>
-        <div className="h-full">
-          <WeeksProfit timeFrame={weeksProfitTimeFrame} className="h-full" />
+      <div className="rounded-3xl border border-white/8 bg-[#050b08] p-4 md:p-5">
+        <div className="grid gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="w-full md:col-span-2">
+              <PaymentsOverview timeFrame={paymentsOverviewTimeFrame} className="dashboard-widget-glow h-full" />
+            </div>
+            <div className="w-full md:col-span-1">
+              <CampaignVisitors className="dashboard-widget-glow h-full" timeFrame={campaignVisitorsTimeFrame} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6 md:flex-row">
+            <div className="w-full md:w-[55%]">
+              <TransactionMix timeFrame={transactionMixTimeFrame} className="dashboard-widget-glow h-full" />
+            </div>
+            <div className="w-full md:w-[45%]">
+              <ProfitThisWeek timeFrame={weeksProfitTimeFrame} className="dashboard-widget-glow h-full" />
+            </div>
+          </div>
         </div>
       </div>
     </section>
