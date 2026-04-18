@@ -369,15 +369,49 @@ export async function getTransactionMixData(
 
   const transactionsInRange = transactions.filter((tx) => new Date(tx.created_at) >= start);
 
-  const earnCount = transactionsInRange.filter((tx) => tx.transaction_type === "earn").length;
-  const redeemCount = transactionsInRange.filter((tx) => tx.transaction_type === "redeem").length;
-  const activeProfileIds = new Set(transactionsInRange.map((tx) => tx.profile_id));
-  const activeCustomers = profiles.filter((profile) => activeProfileIds.has(profile.id)).length;
+  const earnProfileIds = new Set(
+    transactionsInRange
+      .filter((tx) => tx.transaction_type === "earn")
+      .map((tx) => tx.profile_id),
+  );
+  const redeemProfileIds = new Set(
+    transactionsInRange
+      .filter((tx) => tx.transaction_type === "redeem")
+      .map((tx) => tx.profile_id),
+  );
+
+  let onlyEarn = 0;
+  let onlyRedeem = 0;
+  let bothActive = 0;
+  let noActivity = 0;
+
+  for (const profile of profiles) {
+    const hasEarn = earnProfileIds.has(profile.id);
+    const hasRedeem = redeemProfileIds.has(profile.id);
+
+    if (hasEarn && hasRedeem) {
+      bothActive += 1;
+      continue;
+    }
+
+    if (hasEarn) {
+      onlyEarn += 1;
+      continue;
+    }
+
+    if (hasRedeem) {
+      onlyRedeem += 1;
+      continue;
+    }
+
+    noActivity += 1;
+  }
 
   return [
-    { name: "Earn Tx", amount: earnCount },
-    { name: "Redeem Tx", amount: redeemCount },
-    { name: "Active Customers", amount: activeCustomers },
+    { name: "Nur Earn", amount: onlyEarn },
+    { name: "Nur Redeem", amount: onlyRedeem },
+    { name: "Beide aktiv", amount: bothActive },
+    { name: "Keine Aktivitat", amount: noActivity },
   ];
 }
 

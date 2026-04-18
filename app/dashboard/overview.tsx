@@ -1,10 +1,10 @@
 import { PeriodPicker } from "@/components/period-picker";
 import { standardFormat } from "@/lib/format-number";
 import { getOverviewKpis } from "@/services/charts.services";
-import { CampaignVisitors } from "./charts/campiagn-visitors";
+import { CampaignVisitors } from "./charts/campaign-visitors";
 import { PaymentsOverview } from "./charts/payment-overview";
 import { LogoutButton } from "./logout-button";
-import { TransactionMix } from "./charts/used-devices";
+import { TransactionMix } from "./charts/engagement-mix";
 import { WeeksProfit as ProfitThisWeek } from "./charts/weeks-profit";
 
 type PropsType = {

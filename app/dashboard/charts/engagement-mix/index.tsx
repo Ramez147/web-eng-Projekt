@@ -23,14 +23,14 @@ export async function TransactionMix({
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-body-2xlg font-bold text-white">
-          Transaction Mix
+          Engagement Mix
         </h2>
 
         <PeriodPicker defaultValue={timeFrame} sectionKey="transaction_mix" />
       </div>
 
       <div className="grid place-items-center">
-        <DonutChart data={data} centerLabel="Volume" />
+        <DonutChart data={data} centerLabel="Kunden" />
       </div>
     </div>
   );
