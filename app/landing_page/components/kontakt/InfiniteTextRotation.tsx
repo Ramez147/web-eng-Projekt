@@ -10,7 +10,7 @@ export function InfiniteTextRotation() {
           {words.map((word, index) => (
             <span
               key={word}
-              className="infinite-rotating-word absolute inset-0 whitespace-nowrap bg-linear-to-r from-indigo-600 via-blue-500 to-indigo-500 bg-clip-text text-transparent dark:from-indigo-400 dark:via-blue-300 dark:to-indigo-300"
+              className="infinite-rotating-word absolute inset-0 whitespace-nowrap bg-linear-to-r from-primary via-emerald-500 to-primary bg-clip-text text-transparent"
               style={{ animationDelay: `${index * 2.7}s` }}
             >
               {word}
