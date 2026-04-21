@@ -30,7 +30,7 @@ jest.mock("./logout-button", () => ({
   LogoutButton: () => <button data-testid="logout-button">Logout</button>,
 }));
 
-jest.mock("./charts/campiagn-visitors", () => ({
+jest.mock("./charts/campaign-visitors", () => ({
   CampaignVisitors: ({ timeFrame, className }: any) => (
     <div data-testid="campaign-visitors" data-timeframe={timeFrame} className={className}>
       Campaign Visitors Chart

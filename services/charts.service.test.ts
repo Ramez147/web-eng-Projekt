@@ -171,7 +171,7 @@ describe("Charts Service - Unit Tests", () => {
   });
 
   describe("getTransactionMixData", () => {
-    test("sollte Transaction Mix mit Earn, Redeem und Active Customers zurückgeben", async () => {
+    test("sollte Transaction Mix mit Earn, Redeem und Active Customers oder keine zurückgeben", async () => {
       mockSupabaseClient.from().select().eq
         .mockResolvedValueOnce({ data: mockTransactions, error: null })
         .mockResolvedValueOnce({ data: mockProfiles, error: null });
@@ -179,12 +179,13 @@ describe("Charts Service - Unit Tests", () => {
       const result = await getTransactionMixData("monthly");
 
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(3);
+      expect(result.length).toBe(4);
 
       const names = result.map((item) => item.name);
-      expect(names).toContain("Earn Tx");
-      expect(names).toContain("Redeem Tx");
-      expect(names).toContain("Active Customers");
+      expect(names).toContain("Nur Earn");
+      expect(names).toContain("Nur Redeem");
+      expect(names).toContain("Beide aktiv");
+      expect(names).toContain("Keine Aktivitat");
     });
 
     test("sollte korrekte Counts für Transaktionen zurückgeben", async () => {
@@ -194,22 +195,22 @@ describe("Charts Service - Unit Tests", () => {
 
       const result = await getTransactionMixData("monthly");
 
-      const earnTx = result.find((item) => item.name === "Earn Tx");
-      const redeemTx = result.find((item) => item.name === "Redeem Tx");
+      const earnTx = result.find((item) => item.name === "Nur Earn");
+      const bothActiveTx = result.find((item) => item.name === "Beide aktiv");
 
-      expect(earnTx?.amount).toBe(2); // 2 earn transactions
-      expect(redeemTx?.amount).toBe(1); // 1 redeem transaction
+      expect(earnTx?.amount).toBe(1); // profile-2 with only earn
+      expect(bothActiveTx?.amount).toBe(1); // profile-1 with both earn and redeem
     });
 
-    test("sollte Active Customers zählen", async () => {
+    test("sollte Beide aktiv zählen", async () => {
       mockSupabaseClient.from().select().eq
         .mockResolvedValueOnce({ data: mockTransactions, error: null })
         .mockResolvedValueOnce({ data: mockProfiles, error: null });
 
       const result = await getTransactionMixData();
 
-      const activeCustomers = result.find((item) => item.name === "Active Customers");
-      expect(activeCustomers?.amount).toBeGreaterThan(0);
+      const bothActive = result.find((item) => item.name === "Beide aktiv");
+      expect(bothActive?.amount).toBeGreaterThan(0);
     });
 
     test("sollte mit leeren Transaktionen umgehen", async () => {
