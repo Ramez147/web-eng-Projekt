@@ -1,3 +1,6 @@
+"use client";
+
+import { MouseEvent } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   Card,
@@ -8,6 +11,27 @@ import {
 } from "./ui/card";
 
 export const Testimonials = () => {
+  const handleGlowMove = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    card.style.setProperty("--testimonial-glow-x", `${x}px`);
+    card.style.setProperty("--testimonial-glow-y", `${y}px`);
+  };
+
+  const handleGlowEnter = (event: MouseEvent<HTMLElement>) => {
+    event.currentTarget.classList.add("testimonial-glow-active");
+  };
+
+  const handleGlowLeave = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    card.classList.remove("testimonial-glow-active");
+    card.style.removeProperty("--testimonial-glow-x");
+    card.style.removeProperty("--testimonial-glow-y");
+  };
+
   return (
     <section
       id="testimonials"
@@ -26,7 +50,12 @@ export const Testimonials = () => {
       </div>
 
       <div className="mt-8 grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 border-primary/10 shadow-lg shadow-primary/5">
+        <Card
+          onMouseMove={handleGlowMove}
+          onMouseEnter={handleGlowEnter}
+          onMouseLeave={handleGlowLeave}
+          className="testimonial-glow-card testimonial-glow-1 lg:col-span-2 border-primary/10 shadow-lg shadow-primary/5"
+        >
           <CardHeader className="flex flex-row items-center gap-4 pb-2">
             <Avatar>
               <AvatarImage
@@ -49,7 +78,12 @@ export const Testimonials = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/10 bg-muted/30">
+        <Card
+          onMouseMove={handleGlowMove}
+          onMouseEnter={handleGlowEnter}
+          onMouseLeave={handleGlowLeave}
+          className="testimonial-glow-card testimonial-glow-2 border-primary/10 bg-muted/30"
+        >
           <CardHeader>
             <CardTitle className="text-lg">Warum das wirkt</CardTitle>
             <CardDescription>

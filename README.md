@@ -41,6 +41,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 - Datei: `supabase/migrations/20260410_loyalty_engine.sql`
 - Datei: `supabase/migrations/20260410_memberships.sql`
+- Datei: `supabase/migrations/20260419_contact_requests.sql`
 
 4. Dev-Server starten:
 

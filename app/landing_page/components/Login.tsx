@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, MouseEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import pilotImg from "../assets/pilot.png";
@@ -36,6 +36,48 @@ export const Login = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const handleGlowMove = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    card.style.setProperty("--login-glow-x", `${x}px`);
+    card.style.setProperty("--login-glow-y", `${y}px`);
+  };
+
+  const handleGlowEnter = (event: MouseEvent<HTMLElement>) => {
+    event.currentTarget.classList.add("login-glow-active");
+  };
+
+  const handleGlowLeave = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    card.classList.remove("login-glow-active");
+    card.style.removeProperty("--login-glow-x");
+    card.style.removeProperty("--login-glow-y");
+  };
+
+  const handleImageGlowMove = (event: MouseEvent<HTMLElement>) => {
+    const imageWrapper = event.currentTarget;
+    const bounds = imageWrapper.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    imageWrapper.style.setProperty("--login-image-glow-x", `${x}px`);
+    imageWrapper.style.setProperty("--login-image-glow-y", `${y}px`);
+  };
+
+  const handleImageGlowEnter = (event: MouseEvent<HTMLElement>) => {
+    event.currentTarget.classList.add("login-image-glow-active");
+  };
+
+  const handleImageGlowLeave = (event: MouseEvent<HTMLElement>) => {
+    const imageWrapper = event.currentTarget;
+    imageWrapper.classList.remove("login-image-glow-active");
+    imageWrapper.style.removeProperty("--login-image-glow-x");
+    imageWrapper.style.removeProperty("--login-image-glow-y");
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,7 +181,12 @@ export const Login = () => {
               : "Lege dein Konto an und nutze direkt dieselbe klare Oberflaeche fuer Kampagnen, Teilnehmer und Belohnungen."}
           </p>
 
-          <div className="rounded-2xl border bg-muted/40 p-4">
+          <div
+            onMouseMove={handleImageGlowMove}
+            onMouseEnter={handleImageGlowEnter}
+            onMouseLeave={handleImageGlowLeave}
+            className="login-image-glow-card rounded-2xl border bg-muted/40 p-4"
+          >
             <Image
               src={pilotSrc}
               alt="Illustration einer Person mit Helm"
@@ -150,7 +197,12 @@ export const Login = () => {
           </div>
         </div>
 
-        <Card className="border-primary/20 shadow-lg shadow-primary/5">
+        <Card
+          onMouseMove={handleGlowMove}
+          onMouseEnter={handleGlowEnter}
+          onMouseLeave={handleGlowLeave}
+          className="login-glow-card border-primary/20 shadow-lg shadow-primary/5"
+        >
           <CardHeader>
             <CardTitle>{mode === "signin" ? "Anmeldung" : "Registrierung"}</CardTitle>
             <CardDescription>

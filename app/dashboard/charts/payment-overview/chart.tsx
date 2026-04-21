@@ -73,6 +73,8 @@ export function PaymentsOverviewChart({ data }: PropsType) {
       enabled: false,
     },
     tooltip: {
+      theme: "dark",
+      cssClass: "chart-tooltip-readable",
       marker: {
         show: true,
       },

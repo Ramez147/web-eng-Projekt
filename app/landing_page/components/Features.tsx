@@ -1,3 +1,6 @@
+"use client";
+
+import { MouseEvent } from "react";
 import { Badge } from "./ui/badge";
 import {
   Card,
@@ -54,6 +57,27 @@ const featureList: string[] = [
 ];
 
 export const Features = () => {
+  const handleGlowMove = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    card.style.setProperty("--feature-glow-x", `${x}px`);
+    card.style.setProperty("--feature-glow-y", `${y}px`);
+  };
+
+  const handleGlowEnter = (event: MouseEvent<HTMLElement>) => {
+    event.currentTarget.classList.add("feature-glow-active");
+  };
+
+  const handleGlowLeave = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    card.classList.remove("feature-glow-active");
+    card.style.removeProperty("--feature-glow-x");
+    card.style.removeProperty("--feature-glow-y");
+  };
+
   return (
     <section
       id="features"
@@ -88,8 +112,14 @@ export const Features = () => {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {features.map(({ title, description, points }: FeatureProps) => (
-          <Card key={title}>
+        {features.map(({ title, description, points }: FeatureProps, index: number) => (
+          <Card
+            key={title}
+            onMouseMove={handleGlowMove}
+            onMouseEnter={handleGlowEnter}
+            onMouseLeave={handleGlowLeave}
+            className={`feature-glow-card feature-glow-${index + 1}`}
+          >
             <CardHeader>
               <CardTitle>{title}</CardTitle>
             </CardHeader>

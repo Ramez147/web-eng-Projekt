@@ -1,3 +1,6 @@
+"use client";
+
+import { MouseEvent } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -75,6 +78,27 @@ const pricingList: PricingProps[] = [
 ];
 
 export const Pricing = () => {
+  const handleGlowMove = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    const bounds = card.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    card.style.setProperty("--glow-x", `${x}px`);
+    card.style.setProperty("--glow-y", `${y}px`);
+  };
+
+  const handleGlowEnter = (event: MouseEvent<HTMLElement>) => {
+    event.currentTarget.classList.add("pricing-glow-active");
+  };
+
+  const handleGlowLeave = (event: MouseEvent<HTMLElement>) => {
+    const card = event.currentTarget;
+    card.classList.remove("pricing-glow-active");
+    card.style.removeProperty("--glow-x");
+    card.style.removeProperty("--glow-y");
+  };
+
   return (
     <section
       id="pricing"
@@ -91,14 +115,17 @@ export const Pricing = () => {
         Klare Preisstruktur für Self-Service, wachsende Marken und Enterprise-Setups.
       </h3>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {pricingList.map((pricing: PricingProps) => (
+        {pricingList.map((pricing: PricingProps, index: number) => (
           <Card
             key={pricing.title}
-            className={
+            onMouseMove={handleGlowMove}
+            onMouseEnter={handleGlowEnter}
+            onMouseLeave={handleGlowLeave}
+            className={`pricing-glow-card pricing-glow-${index + 1} ${
               pricing.popular === PopularPlanType.YES
-                ? "drop-shadow-xl shadow-black/10 dark:shadow-white/10"
+                ? "pricing-glow-popular drop-shadow-xl shadow-black/10 dark:shadow-white/10"
                 : ""
-            }
+            }`}
           >
             <CardHeader>
               <CardTitle className="flex item-center justify-between">

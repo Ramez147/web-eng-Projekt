@@ -35,6 +35,14 @@ export type OverviewKpis = {
   avgPointsPerEarn: number;
 };
 
+export type AnalyticsMetricCardsData = {
+  customersCount: number;
+  totalTransactions: number;
+  totalRevenueEur: number;
+  earnedPoints: number;
+  redeemedPoints: number;
+};
+
 type TransactionRow = {
   transaction_type: "earn" | "redeem";
   points: number;
@@ -361,15 +369,49 @@ export async function getTransactionMixData(
 
   const transactionsInRange = transactions.filter((tx) => new Date(tx.created_at) >= start);
 
-  const earnCount = transactionsInRange.filter((tx) => tx.transaction_type === "earn").length;
-  const redeemCount = transactionsInRange.filter((tx) => tx.transaction_type === "redeem").length;
-  const activeProfileIds = new Set(transactionsInRange.map((tx) => tx.profile_id));
-  const activeCustomers = profiles.filter((profile) => activeProfileIds.has(profile.id)).length;
+  const earnProfileIds = new Set(
+    transactionsInRange
+      .filter((tx) => tx.transaction_type === "earn")
+      .map((tx) => tx.profile_id),
+  );
+  const redeemProfileIds = new Set(
+    transactionsInRange
+      .filter((tx) => tx.transaction_type === "redeem")
+      .map((tx) => tx.profile_id),
+  );
+
+  let onlyEarn = 0;
+  let onlyRedeem = 0;
+  let bothActive = 0;
+  let noActivity = 0;
+
+  for (const profile of profiles) {
+    const hasEarn = earnProfileIds.has(profile.id);
+    const hasRedeem = redeemProfileIds.has(profile.id);
+
+    if (hasEarn && hasRedeem) {
+      bothActive += 1;
+      continue;
+    }
+
+    if (hasEarn) {
+      onlyEarn += 1;
+      continue;
+    }
+
+    if (hasRedeem) {
+      onlyRedeem += 1;
+      continue;
+    }
+
+    noActivity += 1;
+  }
 
   return [
-    { name: "Earn Tx", amount: earnCount },
-    { name: "Redeem Tx", amount: redeemCount },
-    { name: "Active Customers", amount: activeCustomers },
+    { name: "Nur Earn", amount: onlyEarn },
+    { name: "Nur Redeem", amount: onlyRedeem },
+    { name: "Beide aktiv", amount: bothActive },
+    { name: "Keine Aktivitat", amount: noActivity },
   ];
 }
 
@@ -416,5 +458,31 @@ export async function getOverviewKpis(timeFrame = "monthly"): Promise<OverviewKp
     activeCustomers,
     redeemRate: Math.round(redeemRate * 10) / 10,
     avgPointsPerEarn: Math.round(avgPointsPerEarn),
+  };
+}
+
+export async function getAnalyticsMetricCardsData(
+  timeFrame = "monthly",
+): Promise<AnalyticsMetricCardsData> {
+  const normalizedTimeFrame = normalizeRangeTimeFrame(timeFrame);
+  const { transactions } = await getDashboardSourceData();
+  const rangeStart = getRangeStart(normalizedTimeFrame, new Date());
+
+  const inRange = transactions.filter((tx) => new Date(tx.created_at) >= rangeStart);
+  const earnTransactions = inRange.filter((tx) => tx.transaction_type === "earn");
+  const redeemTransactions = inRange.filter((tx) => tx.transaction_type === "redeem");
+
+  const customersCount = new Set(inRange.map((tx) => tx.profile_id)).size;
+  const totalTransactions = inRange.length;
+  const totalRevenueEur = earnTransactions.reduce((sum, tx) => sum + Number(tx.eur_amount), 0);
+  const earnedPoints = earnTransactions.reduce((sum, tx) => sum + tx.points, 0);
+  const redeemedPoints = redeemTransactions.reduce((sum, tx) => sum + tx.points, 0);
+
+  return {
+    customersCount,
+    totalTransactions,
+    totalRevenueEur: Math.round(totalRevenueEur * 100) / 100,
+    earnedPoints: Math.round(earnedPoints),
+    redeemedPoints: Math.round(redeemedPoints),
   };
 }

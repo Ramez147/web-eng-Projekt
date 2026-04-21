@@ -84,12 +84,9 @@ components:
           format: date-time
       required: [organizationId, pointsRatio, updatedAt]
 
-    EarnPointsRequest:
+    CollectPointsRequest:
       type: object
       properties:
-        organizationId:
-          type: string
-          format: uuid
         externalCustomerId:
           type: string
           minLength: 1
@@ -99,9 +96,9 @@ components:
         metadata:
           type: object
           additionalProperties: true
-      required: [organizationId, externalCustomerId, amountEur]
+      required: [externalCustomerId, amountEur]
 
-    EarnPointsResponse:
+    CollectPointsResponse:
       type: object
       properties:
         organizationId:
@@ -112,14 +109,14 @@ components:
         profileId:
           type: string
           format: uuid
-        pointsEarned:
+        pointsCollected:
           type: integer
         newPointsBalance:
           type: integer
         totalSpentEur:
           type: number
       required:
-        [organizationId, externalCustomerId, profileId, pointsEarned, newPointsBalance, totalSpentEur]
+        [organizationId, externalCustomerId, profileId, pointsCollected, newPointsBalance, totalSpentEur]
 
     RedeemPointsRequest:
       type: object
@@ -301,11 +298,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/v1/points/earn:
+  /api/v1/collect:
     post:
       tags: [Points]
-      summary: Earn points for purchase amount
-      operationId: earnPoints
+      summary: Collect points for purchase amount
+      operationId: collectPoints
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -313,9 +310,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EarnPointsRequest'
+              $ref: '#/components/schemas/CollectPointsRequest'
             example:
-              organizationId: 0f6a6de7-7f5f-4da3-a95a-37f4cb6b3c6c
               externalCustomerId: customer-123
               amountEur: 59.9
               metadata:
@@ -326,7 +322,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EarnPointsResponse'
+                $ref: '#/components/schemas/CollectPointsResponse'
         '400':
           description: Validation or processing error
           content:
