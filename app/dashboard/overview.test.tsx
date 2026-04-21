@@ -46,7 +46,7 @@ jest.mock("./charts/payment-overview", () => ({
   ),
 }));
 
-jest.mock("./charts/used-devices", () => ({
+jest.mock("./charts/engagement-mix", () => ({
   TransactionMix: ({ timeFrame, className }: any) => (
     <div data-testid="transaction-mix" data-timeframe={timeFrame} className={className}>
       Transaction Mix Chart
