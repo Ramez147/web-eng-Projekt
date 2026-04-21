@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, MouseEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import pilotImg from "../assets/pilot.png";
 import { Button } from "./ui/button";
@@ -30,12 +29,29 @@ const initialForm: LoginForm = {
 
 export const Login = () => {
   const pilotSrc = typeof pilotImg === "string" ? pilotImg : pilotImg.src;
-  const router = useRouter();
   const [form, setForm] = useState<LoginForm>(initialForm);
   const [mode, setMode] = useState<AuthMode>("signin");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const waitForAuthenticatedSession = async () => {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const response = await fetch("/api/auth/session", {
+        credentials: "include",
+      });
+
+      const payload = (await response.json()) as { authenticated?: boolean };
+
+      if (response.ok && payload.authenticated) {
+        return true;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+
+    return false;
+  };
 
   const handleGlowMove = (event: MouseEvent<HTMLElement>) => {
     const card = event.currentTarget;
@@ -120,7 +136,14 @@ export const Login = () => {
 
       if (mode === "signin") {
         setSuccess("Anmeldung erfolgreich. Deine Session wurde als Cookie gespeichert.");
-        router.replace("/dashboard");
+        const isSessionReady = await waitForAuthenticatedSession();
+
+        if (!isSessionReady) {
+          setError("Session konnte nicht bestaetigt werden. Bitte erneut versuchen.");
+          return;
+        }
+
+        window.location.assign("/dashboard");
       } else {
         setSuccess(
           result?.session
@@ -128,7 +151,14 @@ export const Login = () => {
             : "Registrierung erfolgreich. Bitte bestaetige deine E-Mail, falls Supabase-Bestaetigung aktiviert ist."
         );
         if (result?.session) {
-          router.replace("/dashboard");
+          const isSessionReady = await waitForAuthenticatedSession();
+
+          if (!isSessionReady) {
+            setError("Session konnte nicht bestaetigt werden. Bitte erneut versuchen.");
+            return;
+          }
+
+          window.location.assign("/dashboard");
         }
       }
       setForm((prev) => ({ ...prev, password: "" }));
