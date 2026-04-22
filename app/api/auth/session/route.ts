@@ -9,7 +9,11 @@ export async function GET() {
       return NextResponse.json({ authenticated: false });
     }
 
-    return NextResponse.json({ authenticated: true, userId: user.id });
+    return NextResponse.json({
+      authenticated: true,
+      userId: user.id,
+      email: user.email ?? null,
+    });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

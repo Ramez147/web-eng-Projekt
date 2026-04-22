@@ -1,9 +1,7 @@
 import { PeriodPicker } from "@/components/period-picker";
-import { standardFormat } from "@/lib/format-number";
 import { getOverviewKpis } from "@/services/charts.services";
 import { CampaignVisitors } from "./charts/campaign-visitors";
 import { PaymentsOverview } from "./charts/payment-overview";
-import { LogoutButton } from "./logout-button";
 import { TransactionMix } from "./charts/engagement-mix";
 import { WeeksProfit as ProfitThisWeek } from "./charts/weeks-profit";
 
@@ -33,19 +31,16 @@ export function DashboardOverviewHeader({ timeFrames }: PropsType) {
   const { globalTimeFrame } = resolveTimeFrames(timeFrames);
 
   return (
-    <section className="space-y-4">
+    <section id="dashboard-top" className="space-y-4">
       <div className="rounded-3xl border border-white/8 bg-[#07140d] p-5 shadow-[0_16px_50px_rgba(0,0,0,0.35)] md:p-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-4xl">
             <p className="inline-flex items-center rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
               Multi-Tenant Dashboard
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-bold tracking-tight text-white md:text-2xl">
-                Overview & Live-Kennzahlen
-              </h1>
-              <LogoutButton />
-            </div>
+            <h1 className="mt-3 text-xl font-bold tracking-tight text-white md:text-2xl">
+              Overview & Live-Kennzahlen
+            </h1>
             <p className="mt-3 inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
               Dashboard-Daten geladen
             </p>
@@ -75,10 +70,10 @@ export async function DashboardOverviewCharts({ timeFrames }: PropsType) {
     transactionMixTimeFrame,
   } = resolveTimeFrames(timeFrames);
 
-  const kpis = await getOverviewKpis(globalTimeFrame);
+  await getOverviewKpis(globalTimeFrame);
 
   return (
-    <section className="space-y-4">
+    <section id="dashboard-analytics" className="space-y-4">
       {/* <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="dashboard-widget-glow rounded-xl border border-white/8 bg-white/3 p-3.5">
           <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Revenue</p>
@@ -109,7 +104,7 @@ export async function DashboardOverviewCharts({ timeFrames }: PropsType) {
       <div className="rounded-3xl border border-white/8 bg-[#050b08] p-4 md:p-5">
         <div className="grid gap-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="w-full md:col-span-2">
+            <div id="dashboard-payments" className="w-full md:col-span-2">
               <PaymentsOverview timeFrame={paymentsOverviewTimeFrame} className="dashboard-widget-glow h-full" />
             </div>
             <div className="w-full md:col-span-1">

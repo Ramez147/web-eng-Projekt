@@ -1,6 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  BarChart3,
+  CreditCard,
+  LayoutDashboard,
+  Menu,
+  Settings,
+  X,
+} from "lucide-react";
+import { DashboardSettingsPanel } from "@/app/dashboard/settings-panel";
+import { LogoutButton } from "./logout-button";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -8,6 +18,11 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const scopeRef = useRef<HTMLDivElement>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
+  const [activeSection, setActiveSection] = useState<
+    "dashboard" | "analytics" | "payments" | "settings"
+  >("dashboard");
 
   useEffect(() => {
     const root = document.documentElement;
@@ -35,7 +50,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     const scope = scopeRef.current;
 
-    if (!scope) {
+    if (!scope || activeTab !== "dashboard") {
       return;
     }
 
@@ -148,7 +163,153 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       clearActiveGlow();
     };
-  }, []);
+  }, [activeTab]);
 
-  return <div ref={scopeRef}>{children}</div>;
+  const primaryNavItems: Array<{
+    key: "dashboard" | "analytics" | "payments";
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { key: "analytics", label: "Analytics", icon: BarChart3 },
+    { key: "payments", label: "Payments", icon: CreditCard },
+  ];
+
+  const scrollToSection = (sectionId: string) => {
+    const scope = scopeRef.current;
+    const section = document.getElementById(sectionId);
+
+    if (!scope || !section) {
+      return;
+    }
+
+    const targetTop = section.offsetTop;
+    scope.scrollTo({
+      top: Math.max(0, targetTop - 12),
+      behavior: "smooth",
+    });
+  };
+
+  const handleNavigate = (target: "dashboard" | "analytics" | "payments" | "settings") => {
+    setActiveSection(target);
+    if (target === "settings") {
+      setActiveTab("settings");
+      setIsMobileSidebarOpen(false);
+      return;
+    }
+
+    setActiveTab("dashboard");
+    setIsMobileSidebarOpen(false);
+
+    const sectionIdByTarget: Record<"dashboard" | "analytics" | "payments", string> = {
+      dashboard: "dashboard-top",
+      analytics: "dashboard-analytics",
+      payments: "dashboard-payments",
+    };
+
+    const targetSectionId = sectionIdByTarget[target];
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        scrollToSection(targetSectionId);
+      });
+    });
+  };
+
+  const navButtonClasses = (isActive: boolean) =>
+    [
+      "group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+      isActive
+        ? "bg-slate-900/80 text-white shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+        : "text-slate-300 hover:bg-slate-900/70 hover:text-white",
+      "before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:content-['']",
+      isActive
+        ? "before:bg-gradient-to-b before:from-cyan-400 before:to-violet-400"
+        : "before:bg-transparent group-hover:before:bg-cyan-400/60",
+    ].join(" ");
+
+  return (
+    <div className="flex h-screen bg-[#020202] text-slate-100">
+      <div
+        className={[
+          "fixed inset-0 z-30 bg-black/70 transition-opacity md:hidden",
+          isMobileSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        ].join(" ")}
+        onClick={() => {
+          setIsMobileSidebarOpen(false);
+        }}
+      />
+
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800 bg-[#050505] transition-transform duration-300 md:static md:translate-x-0",
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+      >
+        <div className="border-b border-slate-800 px-5 py-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Loyalty</p>
+          <p className="mt-1 text-lg font-semibold text-white">Control Center</p>
+        </div>
+
+        <nav className="flex-1 px-3 py-4">
+          <ul className="space-y-1.5">
+            {primaryNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeSection === item.key;
+
+              return (
+                <li key={item.key}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleNavigate(item.key);
+                    }}
+                    className={navButtonClasses(isActive)}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="space-y-2 border-t border-slate-800 px-3 py-4">
+          <button
+            type="button"
+            onClick={() => {
+              handleNavigate("settings");
+            }}
+            className={navButtonClasses(activeSection === "settings")}
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </button>
+          <LogoutButton className="w-full justify-center border border-slate-700 bg-[#0b0b0b] text-slate-100 hover:border-cyan-400/50 hover:bg-slate-900" />
+        </div>
+      </aside>
+
+      <section className="flex min-w-0 flex-1 flex-col md:pl-0">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-[#050505]/95 px-4 py-3 backdrop-blur md:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileSidebarOpen((previous) => !previous);
+            }}
+            className="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-[#0b0b0b] p-2 text-slate-200"
+            aria-label="Toggle menu"
+          >
+            {isMobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <p className="text-sm font-semibold tracking-wide text-slate-200">Dashboard Navigation</p>
+          <div className="h-9 w-9" />
+        </header>
+
+        <div ref={scopeRef} className="flex-1 overflow-y-auto">
+          {activeTab === "settings" ? <DashboardSettingsPanel /> : children}
+        </div>
+      </section>
+    </div>
+  );
 }

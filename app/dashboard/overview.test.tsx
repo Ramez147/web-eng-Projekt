@@ -1,6 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+type PickerMockProps = {
+  defaultValue?: string;
+  sectionKey?: string;
+};
+
+type ChartMockProps = {
+  timeFrame?: string;
+  className?: string;
+};
+
 // Mock all services and dependencies BEFORE importing the component
 jest.mock("@/services/charts.services", () => ({
   getOverviewKpis: jest.fn(() => 
@@ -19,19 +29,15 @@ jest.mock("@/lib/format-number", () => ({
 
 // Mock dependencies
 jest.mock("@/components/period-picker", () => ({
-  PeriodPicker: ({ defaultValue, sectionKey }: any) => (
+  PeriodPicker: ({ defaultValue, sectionKey }: PickerMockProps) => (
     <div data-testid="period-picker" data-value={defaultValue} data-key={sectionKey}>
       Period Picker
     </div>
   ),
 }));
 
-jest.mock("./logout-button", () => ({
-  LogoutButton: () => <button data-testid="logout-button">Logout</button>,
-}));
-
 jest.mock("./charts/campaign-visitors", () => ({
-  CampaignVisitors: ({ timeFrame, className }: any) => (
+  CampaignVisitors: ({ timeFrame, className }: ChartMockProps) => (
     <div data-testid="campaign-visitors" data-timeframe={timeFrame} className={className}>
       Campaign Visitors Chart
     </div>
@@ -39,7 +45,7 @@ jest.mock("./charts/campaign-visitors", () => ({
 }));
 
 jest.mock("./charts/payment-overview", () => ({
-  PaymentsOverview: ({ timeFrame, className }: any) => (
+  PaymentsOverview: ({ timeFrame, className }: ChartMockProps) => (
     <div data-testid="payments-overview" data-timeframe={timeFrame} className={className}>
       Payments Overview Chart
     </div>
@@ -47,7 +53,7 @@ jest.mock("./charts/payment-overview", () => ({
 }));
 
 jest.mock("./charts/engagement-mix", () => ({
-  TransactionMix: ({ timeFrame, className }: any) => (
+  TransactionMix: ({ timeFrame, className }: ChartMockProps) => (
     <div data-testid="transaction-mix" data-timeframe={timeFrame} className={className}>
       Transaction Mix Chart
     </div>
@@ -55,7 +61,7 @@ jest.mock("./charts/engagement-mix", () => ({
 }));
 
 jest.mock("./charts/weeks-profit", () => ({
-  WeeksProfit: ({ timeFrame, className }: any) => (
+  WeeksProfit: ({ timeFrame, className }: ChartMockProps) => (
     <div data-testid="weeks-profit" data-timeframe={timeFrame} className={className}>
       Weeks Profit Chart
     </div>
@@ -84,12 +90,6 @@ describe("DashboardOverview - Unit Tests", () => {
 
       expect(screen.getByText("Kennzahlen oben, Charts in der Mitte, Verwaltung unten.")).toBeInTheDocument();
       expect(screen.getByText("Globaler Zeitraum")).toBeInTheDocument();
-    });
-
-    test("sollte den Logout-Button anzeigen", () => {
-      render(<DashboardOverviewHeader />);
-
-      expect(screen.getByTestId("logout-button")).toBeInTheDocument();
     });
 
     test("sollte den globalen Zeitraum 'weekly' verwenden wenn angegeben", () => {
@@ -221,12 +221,10 @@ describe("DashboardOverview - Unit Tests", () => {
       expect(h1).toHaveTextContent("Overview & Live-Kennzahlen");
     });
 
-    test("sollte Button für Logout enthalten", () => {
+    test("sollte kein Logout-Button im Header enthalten", () => {
       render(<DashboardOverviewHeader />);
 
-      const button = screen.getByTestId("logout-button");
-      expect(button).toBeInTheDocument();
-      expect(button.tagName).toBe("BUTTON");
+      expect(screen.queryByText("Logout")).not.toBeInTheDocument();
     });
   });
 
