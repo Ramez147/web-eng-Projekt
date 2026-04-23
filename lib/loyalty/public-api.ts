@@ -49,6 +49,23 @@ export async function getOrganizationIdFromApiKey(
   return data;
 }
 
+/**
+ * Pure function to extract error message from various error types
+ * @param error - Error object or ZodError
+ * @returns Extracted error message
+ */
+export function extractErrorMessage(error: unknown): string {
+  if (error instanceof ZodError) {
+    return error.issues.map((issue) => issue.message).join("; ");
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Unknown error";
+}
+
 export function getPublicApiErrorStatus(message: string): number {
   const lower = message.toLowerCase();
 
@@ -68,6 +85,17 @@ export function getPublicApiErrorStatus(message: string): number {
   }
 
   return 500;
+}
+
+/**
+ * Pure function to create error response object
+ * @param message - Error message
+ * @param isZodError - Whether this came from ZodError (defaults to 400 status)
+ * @returns Object with error message and HTTP status code
+ */
+export function createErrorResponseObject(message: string, isZodError: boolean = false): { error: string; status: number } {
+  const status = isZodError ? 400 : getPublicApiErrorStatus(message);
+  return { error: message, status };
 }
 
 export function createPublicApiErrorResponse(error: unknown) {

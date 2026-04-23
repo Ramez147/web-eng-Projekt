@@ -11,7 +11,7 @@ export const About = () => {
       <div className="bg-muted/50 border rounded-lg py-12">
         <div className="px-6 flex flex-col-reverse md:flex-row gap-8 md:gap-12">
           <Image
-            src={pilot.src}
+            src={pilot}
             alt=""
             className="w-[300px] object-contain rounded-lg"
             width={300}
