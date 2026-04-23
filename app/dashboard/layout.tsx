@@ -18,7 +18,8 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const scopeRef = useRef<HTMLDivElement>(null);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isDesktopViewport, setIsDesktopViewport] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
   const [activeSection, setActiveSection] = useState<
     "dashboard" | "analytics" | "payments" | "settings"
@@ -44,6 +45,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       if (hadDark) {
         root.classList.add("dark");
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const syncViewportState = (isDesktop: boolean) => {
+      setIsDesktopViewport(isDesktop);
+      setIsSidebarOpen(isDesktop);
+    };
+
+    syncViewportState(mediaQuery.matches);
+
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      syncViewportState(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleViewportChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleViewportChange);
     };
   }, []);
 
@@ -194,12 +216,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setActiveSection(target);
     if (target === "settings") {
       setActiveTab("settings");
-      setIsMobileSidebarOpen(false);
+      if (!isDesktopViewport) {
+        setIsSidebarOpen(false);
+      }
       return;
     }
 
     setActiveTab("dashboard");
-    setIsMobileSidebarOpen(false);
+    if (!isDesktopViewport) {
+      setIsSidebarOpen(false);
+    }
 
     const sectionIdByTarget: Record<"dashboard" | "analytics" | "payments", string> = {
       dashboard: "dashboard-top",
@@ -229,21 +255,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     ].join(" ");
 
   return (
-    <div className="flex h-screen bg-[#020202] text-slate-100">
+    <div className="relative flex h-screen bg-[#020202] text-slate-100">
       <div
         className={[
           "fixed inset-0 z-30 bg-black/70 transition-opacity md:hidden",
-          isMobileSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
+          isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
         ].join(" ")}
         onClick={() => {
-          setIsMobileSidebarOpen(false);
+          setIsSidebarOpen(false);
         }}
       />
 
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800 bg-[#050505] transition-transform duration-300 md:static md:translate-x-0",
-          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800 bg-[#050505] transition-transform duration-300 md:z-30",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         <div className="border-b border-slate-800 px-5 py-5">
@@ -290,17 +316,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </aside>
 
-      <section className="flex min-w-0 flex-1 flex-col md:pl-0">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-[#050505]/95 px-4 py-3 backdrop-blur md:hidden">
+      <section
+        className={[
+          "flex min-w-0 flex-1 flex-col transition-[padding] duration-300",
+          isDesktopViewport && isSidebarOpen ? "md:pl-72" : "md:pl-0",
+        ].join(" ")}
+      >
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-[#050505]/95 px-4 py-3 backdrop-blur">
           <button
             type="button"
             onClick={() => {
-              setIsMobileSidebarOpen((previous) => !previous);
+              setIsSidebarOpen((previous) => !previous);
             }}
             className="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-[#0b0b0b] p-2 text-slate-200"
             aria-label="Toggle menu"
           >
-            {isMobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           <p className="text-sm font-semibold tracking-wide text-slate-200">Dashboard Navigation</p>
           <div className="h-9 w-9" />
