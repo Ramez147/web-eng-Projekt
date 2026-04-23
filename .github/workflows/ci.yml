@@ -26,4 +26,4 @@ jobs:
         run: npm ci
 
       - name: Run test suite
-        run: npm test -- --ci --runInBand
+        run: npm test
