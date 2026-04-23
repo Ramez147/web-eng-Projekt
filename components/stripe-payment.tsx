@@ -8,6 +8,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { PaymentButton } from "./payment-button";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -74,8 +75,10 @@ interface StripePaymentProps {
 export function StripePayment({ amount, onSuccess, onError }: StripePaymentProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const createPaymentIntent = async () => {
+    setIsProcessing(true);
     try {
       const response = await fetch("/api/payment/create-intent", {
         method: "POST",
@@ -92,51 +95,40 @@ export function StripePayment({ amount, onSuccess, onError }: StripePaymentProps
       }
 
       setClientSecret(data.clientSecret);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to initialize payment");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  if (error) {
+  if (clientSecret) {
+    const options = {
+      clientSecret,
+      appearance: {
+        theme: "stripe" as const,
+      },
+    };
+
     return (
-      <div className="text-red-600">
-        Error: {error}
-        <button
-          onClick={() => {
-            setError(null);
-            createPaymentIntent();
-          }}
-          className="ml-2 text-blue-600 underline"
-        >
-          Retry
-        </button>
-      </div>
+      <Elements stripe={stripePromise} options={options}>
+        <PaymentForm amount={amount} onSuccess={onSuccess} onError={onError} />
+      </Elements>
     );
   }
-
-  if (!clientSecret) {
-    return (
-      <div className="text-center">
-        <button
-          onClick={createPaymentIntent}
-          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
-        >
-          Start Payment
-        </button>
-      </div>
-    );
-  }
-
-  const options = {
-    clientSecret,
-    appearance: {
-      theme: "stripe" as const,
-    },
-  };
 
   return (
-    <Elements stripe={stripePromise} options={options}>
-      <PaymentForm amount={amount} onSuccess={onSuccess} onError={onError} />
-    </Elements>
+    <PaymentButton
+      amount={amount}
+      error={error}
+      isProcessing={isProcessing}
+      onStartPayment={createPaymentIntent}
+      onRetry={() => {
+        setError(null);
+        setClientSecret(null);
+        createPaymentIntent();
+      }}
+    />
   );
 }

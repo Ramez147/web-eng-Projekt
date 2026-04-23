@@ -1,33 +1,19 @@
-describe("Dashboard Actions - generateApiKey", () => {
-  test("seharusnya server action dapat di-call", () => {
-    expect(true).toBe(true);
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://odjdwkuawxkntbuwaqmx.supabase.co";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "PASTE_SERVICE_ROLE_KEY_KAMU";
+process.env.TEST_ORG_ID = "123e4567-e89b-12d3-a456-426614174000"; // ganti dengan UUID dari DB kamu
+
+import { describe, it, expect } from "vitest";
+import { generateApiKey } from "./actions";
+
+describe("generateApiKey Integrationstest", () => {
+
+  it("sollte Fehler werfen bei ungültiger UUID", async () => {
+    await expect(generateApiKey("keine-uuid")).rejects.toThrow();
   });
 
-  test("seharusnya return error jika orgId invalid", () => {
-    expect(true).toBe(true);
+  it("sollte Fehler werfen wenn Organisation nicht existiert", async () => {
+    const randomUuid = "00000000-0000-0000-0000-000000000000";
+    await expect(generateApiKey(randomUuid)).rejects.toThrow();
   });
 
-  test("seharusnya return error jika user tidak authenticated", () => {
-    expect(true).toBe(true);
-  });
-
-  test("seharusnya return error jika user bukan admin", () => {
-    expect(true).toBe(true);
-  });
-
-  test("seharusnya generate dan hash API key", () => {
-    expect(true).toBe(true);
-  });
-
-  test("seharusnya save API key ke database", () => {
-    expect(true).toBe(true);
-  });
-
-  test("seharusnya return plain key untuk user", () => {
-    expect(true).toBe(true);
-  });
-
-  test("seharusnya handle database errors", () => {
-    expect(true).toBe(true);
-  });
 });

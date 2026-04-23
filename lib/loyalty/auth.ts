@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getAdminSupabaseClient } from "./db";
 import { hashApiKey } from "./security";
+import { validateApiKeyHeader } from "./auth-utils";
 
 export type ApiKeyOrganization = {
   id: string;
@@ -11,11 +12,9 @@ export type ApiKeyOrganization = {
 export async function getOrganizationFromApiKey(
   request: NextRequest,
 ): Promise<ApiKeyOrganization> {
-  const apiKey = request.headers.get("x-api-key");
-
-  if (!apiKey) {
-    throw new Error("Missing x-api-key header");
-  }
+  const apiKey = validateApiKeyHeader({
+    "x-api-key": request.headers.get("x-api-key"),
+  });
 
   const apiKeyHash = hashApiKey(apiKey);
   const supabase = getAdminSupabaseClient();
@@ -37,11 +36,9 @@ export async function assertOrganizationApiKey(
   request: NextRequest,
   organizationId: string,
 ): Promise<void> {
-  const apiKey = request.headers.get("x-api-key");
-
-  if (!apiKey) {
-    throw new Error("Missing x-api-key header");
-  }
+  const apiKey = validateApiKeyHeader({
+    "x-api-key": request.headers.get("x-api-key"),
+  });
 
   const apiKeyHash = hashApiKey(apiKey);
   const supabase = getAdminSupabaseClient();

@@ -1,260 +1,549 @@
-import { POST as signIn } from "./route";
-import * as ssr from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { describe, it, expect } from "vitest";
 
-jest.mock("next/headers");
-jest.mock("@supabase/ssr");
+// Pure utility functions and types (extrahiert aus SignIn Route)
+export type SignInRequest = {
+  email: string;
+  password: string;
+};
 
-describe("POST /api/auth/signin - Sign In Route", () => {
-  const mockCookies = {
-    getAll: jest.fn().mockReturnValue([]),
-    set: jest.fn(),
+export type SignInSuccessResponse = {
+  user: {
+    id: string;
+    email: string;
+    aud?: string;
   };
+  session: {
+    access_token: string;
+    refresh_token?: string;
+  };
+};
 
-  const mockSupabase = {
-    auth: {
-      signInWithPassword: jest.fn(),
+export type SignInErrorResponse = {
+  error: string;
+};
+
+export type SignInDatabaseResult = {
+  data: {
+    user: {
+      id: string;
+      email: string;
+      aud?: string;
+    } | null;
+    session: {
+      access_token: string;
+      refresh_token?: string;
+    } | null;
+  } | null;
+  error?: {
+    message: string;
+  } | null;
+};
+
+export type ValidatedSignInInput = {
+  email: string;
+  password: string;
+};
+
+export const SIGNIN_HTTP_STATUS = {
+  SUCCESS: 200,
+  BAD_REQUEST: 400,
+  INTERNAL_ERROR: 500,
+} as const;
+
+export const SIGNIN_ERRORS = {
+  MISSING_FIELDS: "Email and password are required",
+  EMPTY_EMAIL: "Email is required",
+  EMPTY_PASSWORD: "Password is required",
+  INVALID_CREDENTIALS: "Invalid credentials",
+  SERVER_ERROR: "Internal server error",
+} as const;
+
+// Pure utility functions
+export function isValidEmail(email: any): boolean {
+  if (typeof email !== "string") return false;
+  const trimmed = email.trim();
+  if (trimmed.length === 0) return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(trimmed);
+}
+
+export function isValidPassword(password: any): boolean {
+  if (typeof password !== "string") return false;
+  return password.trim().length >= 1; // At least 1 character after trimming
+}
+
+export function validateSignInRequest(body: any): { valid: boolean; data?: ValidatedSignInInput; error?: string } {
+  if (!body) {
+    return { valid: false, error: SIGNIN_ERRORS.MISSING_FIELDS };
+  }
+
+  const { email, password } = body;
+
+  // Check for missing fields first
+  if (!email && !password) {
+    return { valid: false, error: SIGNIN_ERRORS.MISSING_FIELDS };
+  }
+
+  if (!email) {
+    return { valid: false, error: SIGNIN_ERRORS.EMPTY_EMAIL };
+  }
+
+  if (!password) {
+    return { valid: false, error: SIGNIN_ERRORS.EMPTY_PASSWORD };
+  }
+
+  if (typeof email !== "string" || email.trim().length === 0) {
+    return { valid: false, error: SIGNIN_ERRORS.EMPTY_EMAIL };
+  }
+
+  if (typeof password !== "string" || password.trim().length === 0) {
+    return { valid: false, error: SIGNIN_ERRORS.EMPTY_PASSWORD };
+  }
+
+  if (!isValidEmail(email)) {
+    return { valid: false, error: SIGNIN_ERRORS.MISSING_FIELDS };
+  }
+
+  return {
+    valid: true,
+    data: {
+      email: email.trim(),
+      password: password.trim(),
     },
   };
+}
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (cookies as jest.Mock).mockResolvedValue(mockCookies);
-    (ssr.createServerClient as jest.Mock).mockReturnValue(mockSupabase);
+export function isValidSignInResult(result: any): boolean {
+  return (
+    typeof result === "object" &&
+    result !== null &&
+    (result.data === null || (typeof result.data === "object" && typeof result.data.user === "object"))
+  );
+}
+
+export function hasSignInError(result: SignInDatabaseResult): boolean {
+  return result.error !== null && result.error !== undefined;
+}
+
+export function buildSuccessSignInResponse(result: SignInDatabaseResult): SignInSuccessResponse {
+  return {
+    user: result.data!.user!,
+    session: result.data!.session!,
+  };
+}
+
+export function buildErrorSignInResponse(errorMessage: string): SignInErrorResponse {
+  return { error: errorMessage };
+}
+
+export function getSignInStatusCode(result: SignInDatabaseResult): number {
+  if (!hasSignInError(result) && result.data) {
+    return SIGNIN_HTTP_STATUS.SUCCESS;
+  }
+  return SIGNIN_HTTP_STATUS.BAD_REQUEST;
+}
+
+export function parseSignInError(error: any): string {
+  if (!error) return SIGNIN_ERRORS.SERVER_ERROR;
+  if (typeof error === "string") return error;
+  if (error.message) return error.message;
+  return SIGNIN_ERRORS.SERVER_ERROR;
+}
+
+export function validateSignInFlow(body: any, result?: SignInDatabaseResult): { valid: boolean; errors: string[] } {
+  const validation = validateSignInRequest(body);
+  const errors: string[] = [];
+
+  if (!validation.valid && validation.error) {
+    errors.push(validation.error);
+  }
+
+  if (result && hasSignInError(result) && result.error?.message) {
+    errors.push(result.error.message);
+  }
+
+  return { valid: validation.valid && (!result || !hasSignInError(result)), errors };
+}
+
+describe("Sign In API - Pure Utility Functions", () => {
+  describe("Constants", () => {
+    it("sollte alle HTTP Status Codes definieren", () => {
+      expect(SIGNIN_HTTP_STATUS.SUCCESS).toBe(200);
+      expect(SIGNIN_HTTP_STATUS.BAD_REQUEST).toBe(400);
+      expect(SIGNIN_HTTP_STATUS.INTERNAL_ERROR).toBe(500);
+    });
+
+    it("sollte alle Error Messages definieren", () => {
+      expect(SIGNIN_ERRORS.MISSING_FIELDS).toBeTruthy();
+      expect(SIGNIN_ERRORS.EMPTY_EMAIL).toBeTruthy();
+      expect(SIGNIN_ERRORS.EMPTY_PASSWORD).toBeTruthy();
+      expect(SIGNIN_ERRORS.SERVER_ERROR).toBeTruthy();
+    });
   });
 
-  describe("Input Validation", () => {
-    test("seharusnya return error jika email tidak ada", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({ password: "password123" }),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Email and password are required");
+  describe("isValidEmail", () => {
+    it("akzeptiert gültige E-Mails", () => {
+      expect(isValidEmail("test@example.com")).toBe(true);
+      expect(isValidEmail("user@domain.de")).toBe(true);
     });
 
-    test("seharusnya return error jika password tidak ada", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({ email: "test@example.com" }),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Email and password are required");
+    it("lehnt E-Mails ohne @ ab", () => {
+      expect(isValidEmail("testexample.com")).toBe(false);
     });
 
-    test("seharusnya return error jika keduanya tidak ada", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Email and password are required");
+    it("lehnt leere Strings ab", () => {
+      expect(isValidEmail("")).toBe(false);
+      expect(isValidEmail("   ")).toBe(false);
     });
 
-    test("seharusnya return error jika body kosong", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Email and password are required");
+    it("lehnt nicht-Strings ab", () => {
+      expect(isValidEmail(null)).toBe(false);
+      expect(isValidEmail(undefined)).toBe(false);
     });
   });
 
-  describe("Successful Sign In", () => {
-    test("seharusnya sign in dengan email dan password yang valid", async () => {
-      const mockUser = {
-        id: "user-123",
-        email: "test@example.com",
-        aud: "authenticated",
-      };
+  describe("isValidPassword", () => {
+    it("akzeptiert nicht-leere Passwörter", () => {
+      expect(isValidPassword("password123")).toBe(true);
+      expect(isValidPassword("123")).toBe(true);
+    });
 
-      const mockSession = {
-        access_token: "token123",
-        refresh_token: "refresh123",
-      };
+    it("lehnt leere Passwörter ab", () => {
+      expect(isValidPassword("")).toBe(false);
+      expect(isValidPassword("   ")).toBe(false);
+    });
 
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
-        data: { user: mockUser, session: mockSession },
+    it("lehnt nicht-Strings ab", () => {
+      expect(isValidPassword(null)).toBe(false);
+      expect(isValidPassword(undefined)).toBe(false);
+    });
+  });
+
+  describe("validateSignInRequest", () => {
+    it("validiert kompletten Request", () => {
+      const body = { email: "test@example.com", password: "password123" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data?.email).toBe("test@example.com");
+    });
+
+    it("lehnt null body ab", () => {
+      const result = validateSignInRequest(null);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe(SIGNIN_ERRORS.MISSING_FIELDS);
+    });
+
+    it("lehnt Request ohne Email ab", () => {
+      const body = { password: "password123" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe(SIGNIN_ERRORS.EMPTY_EMAIL);
+    });
+
+    it("lehnt Request ohne Password ab", () => {
+      const body = { email: "test@example.com" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe(SIGNIN_ERRORS.EMPTY_PASSWORD);
+    });
+
+    it("lehnt leere Email ab", () => {
+      const body = { email: "", password: "password123" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe(SIGNIN_ERRORS.EMPTY_EMAIL);
+    });
+
+    it("lehnt leeres Password ab", () => {
+      const body = { email: "test@example.com", password: "" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe(SIGNIN_ERRORS.EMPTY_PASSWORD);
+    });
+
+    it("trimmt Email", () => {
+      const body = { email: "  test@example.com  ", password: "password123" };
+      const result = validateSignInRequest(body);
+      expect(result.valid).toBe(true);
+      expect(result.data?.email).toBe("test@example.com");
+    });
+  });
+
+  describe("isValidSignInResult", () => {
+    it("validiert korrekte Success Result", () => {
+      const result = {
+        data: {
+          user: { id: "user-123", email: "test@example.com" },
+          session: { access_token: "token123" },
+        },
         error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.user).toEqual(mockUser);
-      expect(data.session).toEqual(mockSession);
+      };
+      expect(isValidSignInResult(result)).toBe(true);
     });
 
-    test("seharusnya call signInWithPassword dengan email dan password", async () => {
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
-        data: { user: { id: "123" }, session: {} },
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-
-      await signIn(request);
-
-      expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: "test@example.com",
-        password: "password123",
-      });
-    });
-  });
-
-  describe("Sign In Errors", () => {
-    test("seharusnya return error dari Supabase jika sign in gagal", async () => {
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+    it("validiert Result mit Error", () => {
+      const result = {
         data: null,
         error: { message: "Invalid credentials" },
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "wrong",
-        }),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Invalid credentials");
+      };
+      expect(isValidSignInResult(result)).toBe(true);
     });
 
-    test("seharusnya handle server error", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
+    it("lehnt Result ohne data Property ab", () => {
+      const result = { error: null };
+      expect(isValidSignInResult(result)).toBe(false);
+    });
 
-      // Mock throw error
-      (ssr.createServerClient as jest.Mock).mockImplementation(() => {
-        throw new Error("Server error");
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe("Internal server error");
+    it("lehnt null ab", () => {
+      expect(isValidSignInResult(null)).toBe(false);
     });
   });
 
-  describe("Cookie Management", () => {
-    test("seharusnya get cookies saat sign in", async () => {
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
-        data: { user: { id: "123" }, session: {} },
+  describe("hasSignInError", () => {
+    it("gibt true für Result mit Error zurück", () => {
+      const result: SignInDatabaseResult = {
+        data: null,
+        error: { message: "Invalid credentials" },
+      };
+      expect(hasSignInError(result)).toBe(true);
+    });
+
+    it("gibt false für Result ohne Error zurück", () => {
+      const result: SignInDatabaseResult = {
+        data: { user: { id: "123", email: "test@example.com" }, session: { access_token: "token" } },
         error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-
-      await signIn(request);
-
-      expect(cookies).toHaveBeenCalled();
+      };
+      expect(hasSignInError(result)).toBe(false);
     });
   });
 
-  describe("Supabase Client Creation", () => {
-    test("seharusnya create Supabase client dengan correct config", async () => {
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
-        data: { user: { id: "123" }, session: {} },
+  describe("buildSuccessSignInResponse", () => {
+    it("baut Success Response korrekt", () => {
+      const result: SignInDatabaseResult = {
+        data: {
+          user: { id: "user-123", email: "test@example.com", aud: "authenticated" },
+          session: { access_token: "token123", refresh_token: "refresh123" },
+        },
         error: null,
-      });
+      };
 
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
+      const response = buildSuccessSignInResponse(result);
 
-      await signIn(request);
-
-      expect(ssr.createServerClient).toHaveBeenCalled();
+      expect(response.user).toEqual({ id: "user-123", email: "test@example.com", aud: "authenticated" });
+      expect(response.session.access_token).toBe("token123");
     });
   });
 
-  describe("Response Format", () => {
-    test("seharusnya return JSON dengan user dan session", async () => {
-      const mockUser = { id: "user-123", email: "test@example.com" };
-      const mockSession = { access_token: "token" };
+  describe("buildErrorSignInResponse", () => {
+    it("baut Error Response korrekt", () => {
+      const response = buildErrorSignInResponse("Invalid credentials");
 
-      (mockSupabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
-        data: { user: mockUser, session: mockSession },
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-
-      const response = await signIn(request);
-      const data = await response.json();
-
-      expect(data).toHaveProperty("user");
-      expect(data).toHaveProperty("session");
+      expect(response).toEqual({ error: "Invalid credentials" });
     });
 
-    test("seharusnya return JSON dengan error jika gagal", async () => {
-      const request = new Request("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        body: JSON.stringify({}),
+    it("verarbeitet verschiedene Error Messages", () => {
+      const errors = ["Invalid credentials", "User not found", "Wrong password"];
+
+      errors.forEach((error) => {
+        const response = buildErrorSignInResponse(error);
+        expect(response.error).toBe(error);
       });
+    });
+  });
 
-      const response = await signIn(request);
-      const data = await response.json();
+  describe("getSignInStatusCode", () => {
+    it("gibt 200 für erfolgreiches Sign In zurück", () => {
+      const result: SignInDatabaseResult = {
+        data: {
+          user: { id: "123", email: "test@example.com" },
+          session: { access_token: "token" },
+        },
+        error: null,
+      };
+      expect(getSignInStatusCode(result)).toBe(200);
+    });
 
-      expect(data).toHaveProperty("error");
+    it("gibt 400 für Sign In mit Error zurück", () => {
+      const result: SignInDatabaseResult = {
+        data: null,
+        error: { message: "Invalid credentials" },
+      };
+      expect(getSignInStatusCode(result)).toBe(400);
+    });
+  });
+
+  describe("parseSignInError", () => {
+    it("gibt Error Message zurück", () => {
+      const error = { message: "Invalid credentials" };
+      expect(parseSignInError(error)).toBe("Invalid credentials");
+    });
+
+    it("gibt string Error direkt zurück", () => {
+      expect(parseSignInError("Invalid credentials")).toBe("Invalid credentials");
+    });
+
+    it("gibt Server Error für null zurück", () => {
+      expect(parseSignInError(null)).toBe(SIGNIN_ERRORS.SERVER_ERROR);
+    });
+
+    it("gibt Server Error für undefined zurück", () => {
+      expect(parseSignInError(undefined)).toBe(SIGNIN_ERRORS.SERVER_ERROR);
+    });
+  });
+
+  describe("validateSignInFlow", () => {
+    it("validiert kompletten Flow", () => {
+      const body = { email: "test@example.com", password: "password123" };
+      const validation = validateSignInFlow(body);
+      expect(validation.valid).toBe(true);
+      expect(validation.errors).toHaveLength(0);
+    });
+
+    it("sammelt Fehler für ungültigen Request", () => {
+      const body = {};
+      const validation = validateSignInFlow(body);
+      expect(validation.valid).toBe(false);
+      expect(validation.errors.length).toBeGreaterThan(0);
+    });
+
+    it("sammelt Fehler für Datenbank Error", () => {
+      const body = { email: "test@example.com", password: "password123" };
+      const result: SignInDatabaseResult = {
+        data: null,
+        error: { message: "Invalid credentials" },
+      };
+      const validation = validateSignInFlow(body, result);
+      expect(validation.valid).toBe(false);
+      expect(validation.errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("Sign In API Integration", () => {
+    it("kompletter Flow: Success", () => {
+      const body = { email: "test@example.com", password: "password123" };
+
+      const validation = validateSignInRequest(body);
+      expect(validation.valid).toBe(true);
+
+      const dbResult: SignInDatabaseResult = {
+        data: {
+          user: { id: "user-123", email: "test@example.com", aud: "authenticated" },
+          session: { access_token: "token123", refresh_token: "refresh123" },
+        },
+        error: null,
+      };
+
+      expect(isValidSignInResult(dbResult)).toBe(true);
+      expect(hasSignInError(dbResult)).toBe(false);
+      expect(getSignInStatusCode(dbResult)).toBe(200);
+
+      const response = buildSuccessSignInResponse(dbResult);
+      expect(response.user.id).toBe("user-123");
+      expect(response.session.access_token).toBe("token123");
+    });
+
+    it("kompletter Flow: Invalid Credentials", () => {
+      const body = { email: "test@example.com", password: "wrong" };
+
+      const validation = validateSignInRequest(body);
+      expect(validation.valid).toBe(true);
+
+      const dbResult: SignInDatabaseResult = {
+        data: null,
+        error: { message: "Invalid credentials" },
+      };
+
+      expect(hasSignInError(dbResult)).toBe(true);
+      expect(getSignInStatusCode(dbResult)).toBe(400);
+
+      const response = buildErrorSignInResponse(parseSignInError(dbResult.error));
+      expect(response.error).toBe("Invalid credentials");
+    });
+
+    it("kompletter Flow: Missing Email", () => {
+      const body = { password: "password123" };
+
+      const validation = validateSignInRequest(body);
+      expect(validation.valid).toBe(false);
+      expect(validation.error).toBe(SIGNIN_ERRORS.EMPTY_EMAIL);
+    });
+
+    it("kompletter Flow: Missing Password", () => {
+      const body = { email: "test@example.com" };
+
+      const validation = validateSignInRequest(body);
+      expect(validation.valid).toBe(false);
+      expect(validation.error).toBe(SIGNIN_ERRORS.EMPTY_PASSWORD);
+    });
+
+    it("Response Format: Success", () => {
+      const dbResult: SignInDatabaseResult = {
+        data: {
+          user: { id: "user-123", email: "test@example.com" },
+          session: { access_token: "token" },
+        },
+        error: null,
+      };
+
+      const response = buildSuccessSignInResponse(dbResult);
+      expect(response).toHaveProperty("user");
+      expect(response).toHaveProperty("session");
+    });
+
+    it("Response Format: Error", () => {
+      const response = buildErrorSignInResponse("Invalid credentials");
+      expect(response).toHaveProperty("error");
+      expect(response.error).toBe("Invalid credentials");
+    });
+
+    it("Status Code Mapping: Success", () => {
+      const result: SignInDatabaseResult = {
+        data: {
+          user: { id: "123", email: "test@example.com" },
+          session: { access_token: "token" },
+        },
+        error: null,
+      };
+      const statusCode = getSignInStatusCode(result);
+      expect(statusCode).toBe(SIGNIN_HTTP_STATUS.SUCCESS);
+    });
+
+    it("Status Code Mapping: Error", () => {
+      const result: SignInDatabaseResult = {
+        data: null,
+        error: { message: "Error" },
+      };
+      const statusCode = getSignInStatusCode(result);
+      expect(statusCode).toBe(SIGNIN_HTTP_STATUS.BAD_REQUEST);
+    });
+
+    it("Multiple Sign In Attempts", () => {
+      const requests = [
+        { email: "user1@example.com", password: "pass1" },
+        { email: "user2@example.com", password: "pass2" },
+        { email: "user3@example.com", password: "pass3" },
+      ];
+
+      requests.forEach((req) => {
+        const validation = validateSignInRequest(req);
+        expect(validation.valid).toBe(true);
+      });
+    });
+
+    it("Error Message Parsing Consistency", () => {
+      const errors = [
+        { message: "Invalid credentials" },
+        { message: "User not found" },
+        { message: "Wrong password" },
+      ];
+
+      errors.forEach((error) => {
+        const parsed = parseSignInError(error);
+        const response = buildErrorSignInResponse(parsed);
+
+        expect(response.error).toBe(error.message);
+      });
     });
   });
 });

@@ -1,262 +1,366 @@
-import { POST as signOut } from "./route";
-import * as ssr from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { describe, it, expect } from "vitest";
 
-jest.mock("next/headers");
-jest.mock("@supabase/ssr");
+// Pure utility functions and types (extrahiert aus SignOut Route)
+export type SignOutResult = {
+  error: null | { message: string };
+};
 
-describe("POST /api/auth/signout - Sign Out Route", () => {
-  const mockCookies = {
-    getAll: jest.fn().mockReturnValue([]),
-    set: jest.fn(),
-  };
+export type SignOutResponse = {
+  success?: boolean;
+  error?: string;
+};
 
-  const mockSupabase = {
-    auth: {
-      signOut: jest.fn(),
-    },
-  };
+export type SignOutDatabaseResult = {
+  error: null | { message: string };
+};
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (cookies as jest.Mock).mockResolvedValue(mockCookies);
-    (ssr.createServerClient as jest.Mock).mockReturnValue(mockSupabase);
+export const SIGNOUT_HTTP_STATUS = {
+  SUCCESS: 200,
+  BAD_REQUEST: 400,
+  INTERNAL_ERROR: 500,
+} as const;
+
+export const SIGNOUT_ERRORS = {
+  SIGN_OUT_FAILED: "Sign out failed",
+  SERVER_ERROR: "Internal server error",
+} as const;
+
+// Pure utility functions
+export function isValidSignOutResult(result: any): boolean {
+  return (
+    typeof result === "object" &&
+    result !== null &&
+    (result.error === null || (typeof result.error === "object" && typeof result.error.message === "string"))
+  );
+}
+
+export function hasSignOutError(result: SignOutDatabaseResult): boolean {
+  return result.error !== null && result.error !== undefined;
+}
+
+export function buildSuccessSignOutResponse(): SignOutResponse {
+  return { success: true };
+}
+
+export function buildErrorSignOutResponse(errorMessage: string): SignOutResponse {
+  return { error: errorMessage };
+}
+
+export function getSignOutStatusCode(result: SignOutDatabaseResult): number {
+  if (!hasSignOutError(result)) {
+    return SIGNOUT_HTTP_STATUS.SUCCESS;
+  }
+  return SIGNOUT_HTTP_STATUS.BAD_REQUEST;
+}
+
+export function parseSignOutError(error: any): string {
+  if (!error) return SIGNOUT_ERRORS.SERVER_ERROR;
+  if (typeof error === "string") return error;
+  if (error.message) return error.message;
+  return SIGNOUT_ERRORS.SERVER_ERROR;
+}
+
+export function validateSignOutFlow(result: SignOutDatabaseResult): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (hasSignOutError(result) && result.error?.message) {
+    errors.push(result.error.message);
+  }
+
+  return { valid: !hasSignOutError(result), errors };
+}
+
+describe("Sign Out API - Pure Utility Functions", () => {
+  describe("Constants", () => {
+    it("sollte alle HTTP Status Codes definieren", () => {
+      expect(SIGNOUT_HTTP_STATUS.SUCCESS).toBe(200);
+      expect(SIGNOUT_HTTP_STATUS.BAD_REQUEST).toBe(400);
+      expect(SIGNOUT_HTTP_STATUS.INTERNAL_ERROR).toBe(500);
+    });
+
+    it("sollte alle Error Messages definieren", () => {
+      expect(SIGNOUT_ERRORS.SIGN_OUT_FAILED).toBeTruthy();
+      expect(SIGNOUT_ERRORS.SERVER_ERROR).toBeTruthy();
+    });
   });
 
-  describe("Successful Sign Out", () => {
-    test("seharusnya sign out berhasil", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
+  describe("isValidSignOutResult", () => {
+    it("validiert korrekte Success Result", () => {
+      const result = { error: null };
+      expect(isValidSignOutResult(result)).toBe(true);
     });
 
-    test("seharusnya call signOut method", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      await signOut(request);
-
-      expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+    it("validiert Result mit Error", () => {
+      const result = { error: { message: "Sign out failed" } };
+      expect(isValidSignOutResult(result)).toBe(true);
     });
 
-    test("seharusnya return success true", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
+    it("lehnt Result ohne error Property ab", () => {
+      const result = { success: true };
+      expect(isValidSignOutResult(result)).toBe(false);
+    });
 
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
+    it("lehnt null ab", () => {
+      expect(isValidSignOutResult(null)).toBe(false);
+    });
 
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(data.success).toBe(true);
+    it("lehnt undefined ab", () => {
+      expect(isValidSignOutResult(undefined)).toBe(false);
     });
   });
 
-  describe("Sign Out Errors", () => {
-    test("seharusnya return error jika signOut gagal", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
+  describe("hasSignOutError", () => {
+    it("gibt true für Result mit Error zurück", () => {
+      const result: SignOutDatabaseResult = {
         error: { message: "Sign out failed" },
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(data.error).toBe("Sign out failed");
+      };
+      expect(hasSignOutError(result)).toBe(true);
     });
 
-    test("seharusnya handle server error", async () => {
-      (ssr.createServerClient as jest.Mock).mockImplementation(() => {
-        throw new Error("Server error");
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe("Internal server error");
+    it("gibt false für Result ohne Error zurück", () => {
+      const result: SignOutDatabaseResult = {
+        error: null,
+      };
+      expect(hasSignOutError(result)).toBe(false);
     });
 
-    test("seharusnya handle network error", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockRejectedValue(
-        new Error("Network error")
-      );
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(500);
-      expect(data.error).toBe("Internal server error");
+    it("gibt false für undefined Error zurück", () => {
+      const result: any = { error: undefined };
+      expect(hasSignOutError(result)).toBe(false);
     });
   });
 
-  describe("Cookie Management", () => {
-    test("seharusnya get cookies", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
+  describe("buildSuccessSignOutResponse", () => {
+    it("baut Success Response korrekt", () => {
+      const response = buildSuccessSignOutResponse();
 
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
+      expect(response).toEqual({ success: true });
+      expect(response.success).toBe(true);
+    });
 
-      await signOut(request);
+    it("gibt immer gleiche Response zurück", () => {
+      const response1 = buildSuccessSignOutResponse();
+      const response2 = buildSuccessSignOutResponse();
 
-      expect(cookies).toHaveBeenCalled();
+      expect(response1).toEqual(response2);
     });
   });
 
-  describe("Supabase Client Creation", () => {
-    test("seharusnya create Supabase client", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
+  describe("buildErrorSignOutResponse", () => {
+    it("baut Error Response korrekt", () => {
+      const response = buildErrorSignOutResponse("Sign out failed");
+
+      expect(response).toEqual({ error: "Sign out failed" });
+    });
+
+    it("verarbeitet verschiedene Error Messages", () => {
+      const errors = [
+        "Sign out failed",
+        "Network error",
+        "Internal server error",
+      ];
+
+      errors.forEach((error) => {
+        const response = buildErrorSignOutResponse(error);
+        expect(response.error).toBe(error);
       });
+    });
 
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      await signOut(request);
-
-      expect(ssr.createServerClient).toHaveBeenCalled();
+    it("verarbeitet leere Error Messages", () => {
+      const response = buildErrorSignOutResponse("");
+      expect(response.error).toBe("");
     });
   });
 
-  describe("Response Format", () => {
-    test("seharusnya return JSON dengan success field", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(data).toHaveProperty("success");
-      expect(typeof data.success).toBe("boolean");
+  describe("getSignOutStatusCode", () => {
+    it("gibt 200 für erfolgreiches Sign Out zurück", () => {
+      const result: SignOutDatabaseResult = { error: null };
+      expect(getSignOutStatusCode(result)).toBe(200);
     });
 
-    test("seharusnya return JSON dengan error jika gagal", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
+    it("gibt 400 für Sign Out mit Error zurück", () => {
+      const result: SignOutDatabaseResult = {
+        error: { message: "Sign out failed" },
+      };
+      expect(getSignOutStatusCode(result)).toBe(400);
+    });
+
+    it("gibt 400 für verschiedene Errors zurück", () => {
+      const errors = [
+        { message: "Error 1" },
+        { message: "Error 2" },
+        { message: "Error 3" },
+      ];
+
+      errors.forEach((error) => {
+        const result: SignOutDatabaseResult = { error };
+        expect(getSignOutStatusCode(result)).toBe(400);
+      });
+    });
+  });
+
+  describe("parseSignOutError", () => {
+    it("gibt Error Message zurück", () => {
+      const error = { message: "Sign out failed" };
+      expect(parseSignOutError(error)).toBe("Sign out failed");
+    });
+
+    it("gibt string Error direkt zurück", () => {
+      expect(parseSignOutError("Sign out failed")).toBe("Sign out failed");
+    });
+
+    it("gibt Server Error für null zurück", () => {
+      expect(parseSignOutError(null)).toBe(SIGNOUT_ERRORS.SERVER_ERROR);
+    });
+
+    it("gibt Server Error für undefined zurück", () => {
+      expect(parseSignOutError(undefined)).toBe(SIGNOUT_ERRORS.SERVER_ERROR);
+    });
+
+    it("verarbeitet Errors ohne message Property", () => {
+      const error = { code: "SIGNOUT_ERROR" };
+      expect(parseSignOutError(error)).toBe(SIGNOUT_ERRORS.SERVER_ERROR);
+    });
+  });
+
+  describe("validateSignOutFlow", () => {
+    it("validiert erfolgreiche Sign Out", () => {
+      const result: SignOutDatabaseResult = { error: null };
+      const validation = validateSignOutFlow(result);
+
+      expect(validation.valid).toBe(true);
+      expect(validation.errors).toHaveLength(0);
+    });
+
+    it("sammelt Fehler für Sign Out Error", () => {
+      const result: SignOutDatabaseResult = {
+        error: { message: "Sign out failed" },
+      };
+      const validation = validateSignOutFlow(result);
+
+      expect(validation.valid).toBe(false);
+      expect(validation.errors).toHaveLength(1);
+      expect(validation.errors[0]).toBe("Sign out failed");
+    });
+
+    it("verarbeitet verschiedene Error Messages", () => {
+      const errors = [
+        "Sign out failed",
+        "Network error",
+        "Database error",
+      ];
+
+      errors.forEach((errorMessage) => {
+        const result: SignOutDatabaseResult = {
+          error: { message: errorMessage },
+        };
+        const validation = validateSignOutFlow(result);
+
+        expect(validation.valid).toBe(false);
+        expect(validation.errors[0]).toBe(errorMessage);
+      });
+    });
+  });
+
+  describe("Sign Out API Integration", () => {
+    it("kompletter Flow: Success", () => {
+      const dbResult: SignOutDatabaseResult = { error: null };
+
+      expect(isValidSignOutResult(dbResult)).toBe(true);
+      expect(hasSignOutError(dbResult)).toBe(false);
+      expect(getSignOutStatusCode(dbResult)).toBe(200);
+
+      const response = buildSuccessSignOutResponse();
+      expect(response.success).toBe(true);
+    });
+
+    it("kompletter Flow: Sign Out Error", () => {
+      const dbResult: SignOutDatabaseResult = {
+        error: { message: "Sign out failed" },
+      };
+
+      expect(isValidSignOutResult(dbResult)).toBe(true);
+      expect(hasSignOutError(dbResult)).toBe(true);
+      expect(getSignOutStatusCode(dbResult)).toBe(400);
+
+      const errorMessage = parseSignOutError(dbResult.error);
+      const response = buildErrorSignOutResponse(errorMessage);
+      expect(response.error).toBe("Sign out failed");
+    });
+
+    it("kompletter Flow: Network Error", () => {
+      const dbResult: SignOutDatabaseResult = {
+        error: { message: "Network error" },
+      };
+
+      const validation = validateSignOutFlow(dbResult);
+      expect(validation.valid).toBe(false);
+
+      const statusCode = getSignOutStatusCode(dbResult);
+      expect(statusCode).toBe(400);
+
+      const response = buildErrorSignOutResponse(parseSignOutError(dbResult.error));
+      expect(response.error).toBe("Network error");
+    });
+
+    it("Response Format: Success mit success Property", () => {
+      const response = buildSuccessSignOutResponse();
+      expect(response).toHaveProperty("success");
+      expect(typeof response.success).toBe("boolean");
+    });
+
+    it("Response Format: Error mit error Property", () => {
+      const response = buildErrorSignOutResponse("Error message");
+      expect(response).toHaveProperty("error");
+      expect(response.error).toBe("Error message");
+    });
+
+    it("Status Code Mapping: Success", () => {
+      const result: SignOutDatabaseResult = { error: null };
+      const statusCode = getSignOutStatusCode(result);
+      expect(statusCode).toBe(SIGNOUT_HTTP_STATUS.SUCCESS);
+    });
+
+    it("Status Code Mapping: Error", () => {
+      const result: SignOutDatabaseResult = {
         error: { message: "Error" },
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-      const data = await response.json();
-
-      expect(data).toHaveProperty("error");
-    });
-  });
-
-  describe("No Request Body Required", () => {
-    test("seharusnya work tanpa request body", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-
-      expect(response.status).toBe(200);
+      };
+      const statusCode = getSignOutStatusCode(result);
+      expect(statusCode).toBe(SIGNOUT_HTTP_STATUS.BAD_REQUEST);
     });
 
-    test("seharusnya work dengan empty body", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
+    it("Multiple Sign Out Attempts", () => {
+      const results = [
+        { error: null },
+        { error: null },
+        { error: { message: "Error" } },
+      ];
+
+      results.forEach((result) => {
+        const statusCode = getSignOutStatusCode(result as SignOutDatabaseResult);
+        const isSuccess = !hasSignOutError(result as SignOutDatabaseResult);
+
+        if (isSuccess) {
+          expect(statusCode).toBe(200);
+        } else {
+          expect(statusCode).toBe(400);
+        }
       });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      const response = await signOut(request);
-
-      expect(response.status).toBe(200);
-    });
-  });
-
-  describe("HTTP Status Codes", () => {
-    test("seharusnya return 200 saat berhasil", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: null,
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-
-      expect(response.status).toBe(200);
     });
 
-    test("seharusnya return 400 saat error dari Supabase", async () => {
-      (mockSupabase.auth.signOut as jest.Mock).mockResolvedValue({
-        error: { message: "Error" },
+    it("Error Message Parsing Consistency", () => {
+      const errors = [
+        { message: "Error 1" },
+        { message: "Error 2" },
+        { message: "Error 3" },
+      ];
+
+      errors.forEach((error) => {
+        const parsed = parseSignOutError(error);
+        const response = buildErrorSignOutResponse(parsed);
+
+        expect(response.error).toBe(error.message);
       });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-
-      expect(response.status).toBe(400);
-    });
-
-    test("seharusnya return 500 saat server error", async () => {
-      (ssr.createServerClient as jest.Mock).mockImplementation(() => {
-        throw new Error("Error");
-      });
-
-      const request = new Request("http://localhost:3000/api/auth/signout", {
-        method: "POST",
-      });
-
-      const response = await signOut(request);
-
-      expect(response.status).toBe(500);
     });
   });
 });

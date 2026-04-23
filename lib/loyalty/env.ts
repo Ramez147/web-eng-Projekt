@@ -1,11 +1,17 @@
+import {
+  validateEnvVariable,
+  selectPublishableKey,
+} from "./env-utils";
+
 export function getRequiredEnv(name: string): string {
   const value = process.env[name];
+  const validation = validateEnvVariable(value, name);
 
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
   }
 
-  return value;
+  return validation.value!;
 }
 
 export function getSupabaseEnv() {
@@ -16,8 +22,14 @@ export function getSupabaseEnv() {
 }
 
 export function getSupabasePublishableKey() {
-  return (
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
-    getRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
-  );
+  const defaultKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  const selected = selectPublishableKey(defaultKey, anonKey);
+  
+  if (!selected) {
+    throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
+
+  return selected;
 }
