@@ -1,6 +1,6 @@
 process.env.NEXT_PUBLIC_SUPABASE_URL = "https://odjdwkuawxkntbuwaqmx.supabase.co";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "PASTE_SERVICE_ROLE_KEY_KAMU";
-process.env.TEST_ORG_ID = "123e4567-e89b-12d3-a456-426614174000"; // ganti dengan UUID dari DB kamu
+process.env.TEST_ORG_ID = "123e4567-e89b-12d3-a456-426614174000"; 
 
 import { describe, it, expect } from "vitest";
 import { generateApiKey } from "./actions";
