@@ -19,7 +19,7 @@ export function getErrorStatus(message: string): number {
     return 403;
   }
 
-  if (lower.includes("not found")) {
+  if (lower.includes("not found") || lower.includes("not found for this user")) {
     return 404;
   }
 
