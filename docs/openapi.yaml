@@ -12,6 +12,7 @@ tags:
   - name: Organizations
   - name: Points
   - name: Analytics
+  - name: History
 
 components:
   securitySchemes:
@@ -233,6 +234,52 @@ components:
           required: [customersCount, totalRevenueEur, pointsHistoryByDay, history]
       required: [organization, analytics]
 
+    CustomerTransactionHistoryResponse:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        externalCustomerId:
+          type: string
+        customer:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            pointsBalance:
+              type: integer
+            totalSpentEur:
+              type: number
+            createdAt:
+              type: string
+              format: date-time
+          required: [id, pointsBalance, totalSpentEur, createdAt]
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              type:
+                type: string
+                enum: [earn, redeem]
+              points:
+                type: integer
+              eurAmount:
+                type: number
+              createdAt:
+                type: string
+                format: date-time
+              metadata:
+                type: object
+                additionalProperties: true
+            required: [id, type, points, eurAmount, createdAt, metadata]
+      required: [organizationId, externalCustomerId, customer, history]
+
 paths:
   /api/v1/organizations/register:
     post:
@@ -325,6 +372,58 @@ paths:
                 $ref: '#/components/schemas/CollectPointsResponse'
         '400':
           description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/history:
+    get:
+      tags: [History]
+      summary: Get customer transaction history
+      operationId: getCustomerTransactionHistory
+      description: |
+        Returns the transaction history for a customer.
+        
+        Supports two authentication methods:
+        - **Public API**: Provide `x-api-key` header (recommended for backend-to-backend calls)
+        - **Dashboard**: Provide valid session cookie (for authenticated dashboard users)
+      parameters:
+        - name: externalCustomerId
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      security:
+        - ApiKeyAuth: []  # Optional if session is available
+      responses:
+        '200':
+          description: Customer transaction history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerTransactionHistoryResponse'
+        '400':
+          description: Validation or processing error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication required (no API key and no session)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Membership not available for authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found in organization
           content:
             application/json:
               schema:
