@@ -1,6 +1,3 @@
-import { describe, test } from "node:test";
-import assert from "node:assert/strict";
-
 function createRequest(url: string, options?: { apiKey?: string }) {
   const headers: Record<string, string> = {};
   if (options?.apiKey) {
@@ -23,7 +20,7 @@ describe("GET /api/v1/history", () => {
       }) as any,
     );
 
-    assert.equal(res.status, 400);
+    expect(res.status).toBe(400);
   });
 
   test("returns 401 when neither API key nor session is provided", async () => {
@@ -33,7 +30,7 @@ describe("GET /api/v1/history", () => {
       createRequest("http://localhost/api/v1/history?externalCustomerId=test-customer") as any,
     );
 
-    assert.equal(res.status, 401);
+    expect(res.status).toBe(401);
   });
 
   test("accepts valid API key for public API calls", async () => {
@@ -46,7 +43,7 @@ describe("GET /api/v1/history", () => {
     );
 
     // Should not be 401 (invalid key) - may be 404 if customer not found or 200 if found
-    assert.ok([200, 404, 400].includes(res.status));
+    expect([200, 404, 400]).toContain(res.status);
   });
 
   test("returns auth error when user is not signed in and no API key provided", async () => {
@@ -56,6 +53,6 @@ describe("GET /api/v1/history", () => {
       createRequest("http://localhost/api/v1/history?externalCustomerId=test-customer") as any,
     );
 
-    assert.ok([401, 403].includes(res.status));
+    expect([401, 403]).toContain(res.status);
   });
 });
