@@ -68,11 +68,12 @@ function PaymentForm({ amount, onSuccess, onError }: PaymentFormProps) {
 
 interface StripePaymentProps {
   amount: number;
+  metadata?: Record<string, string>;
   onSuccess?: () => void;
   onError?: (error: string) => void;
 }
 
-export function StripePayment({ amount, onSuccess, onError }: StripePaymentProps) {
+export function StripePayment({ amount, metadata, onSuccess, onError }: StripePaymentProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,7 +86,7 @@ export function StripePayment({ amount, onSuccess, onError }: StripePaymentProps
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ amount, metadata }),
       });
 
       const data = await response.json();

@@ -104,7 +104,7 @@ export async function DashboardOverviewCharts({ timeFrames }: PropsType) {
       <div className="rounded-3xl border border-white/8 bg-[#050b08] p-4 md:p-5">
         <div className="grid gap-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div id="dashboard-payments" className="w-full md:col-span-2">
+            <div className="w-full md:col-span-2">
               <PaymentsOverview timeFrame={paymentsOverviewTimeFrame} className="dashboard-widget-glow h-full" />
             </div>
             <div className="w-full md:col-span-1">
