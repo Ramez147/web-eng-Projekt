@@ -12,11 +12,20 @@ import {
 import type { SubscriptionResponse } from "@/app/api/payment/subscription/route";
 import type { PaymentHistoryItem } from "@/app/api/payment/history/route";
 
-function formatCurrency(amountCents: number, currency: string) {
+export function formatCurrency(amountCents: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency.toUpperCase(),
   }).format(amountCents / 100);
+}
+
+export function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function formatDate(iso: string) {
@@ -47,7 +56,7 @@ type PrintReceiptProps = {
   organizationName?: string;
 };
 
-function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
+export function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
   const date = formatDate(item.createdAt);
   const amount = formatCurrency(item.amountCents, item.currency);
   const org = organizationName ?? "Your Organization";
@@ -69,24 +78,25 @@ function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
       </head>
       <body>
         <h1>Receipt</h1>
-        <p class="meta">${org} &nbsp;·&nbsp; ${date}</p>
+        <p class="meta">${escapeHtml(org)} &nbsp;·&nbsp; ${escapeHtml(date)}</p>
         <table>
-          <tr><td>${item.description ?? "Premium subscription"}</td><td>${amount}</td></tr>
-          <tr class="total"><td>Total</td><td>${amount}</td></tr>
+          <tr><td>${escapeHtml(item.description ?? "Premium subscription")}</td><td>${escapeHtml(amount)}</td></tr>
+          <tr class="total"><td>Total</td><td>${escapeHtml(amount)}</td></tr>
         </table>
-        <p class="footer">Transaction ID: ${item.id}</p>
+        <p class="footer">Transaction ID: ${escapeHtml(item.id)}</p>
       </body>
     </html>
   `;
 }
 
-function printReceipt(item: PaymentHistoryItem, organizationName?: string) {
+export function printReceipt(item: PaymentHistoryItem, organizationName?: string) {
   const win = window.open("", "_blank", "width=540,height=600");
-  if (!win) return;
+  if (!win) return false;
   win.document.write(buildReceiptHtml({ item, organizationName }));
   win.document.close();
   win.focus();
   win.print();
+  return true;
 }
 
 export function PaymentSection() {

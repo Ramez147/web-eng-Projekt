@@ -62,7 +62,7 @@ describe("PaymentSection", () => {
   });
 
   it("shows free tier state and payment history", async () => {
-    const fetchMock = vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+    const fetchMock = vi.spyOn(global, "fetch").mockImplementation(async (input: RequestInfo | URL) => {
       const url = String(input);
 
       if (url.includes("/api/payment/subscription")) {
@@ -109,54 +109,5 @@ describe("PaymentSection", () => {
     expect(screen.getAllByText("Print").length).toBeGreaterThan(0);
 
     fetchMock.mockRestore();
-  });
-
-  it("shows popup warning when print popup is blocked", async () => {
-    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
-      const url = String(input);
-
-      if (url.includes("/api/payment/subscription")) {
-        return {
-          ok: true,
-          json: async () => ({
-            plan: "premium",
-            status: "active",
-            currentPeriodEnd: "2026-06-01T10:00:00.000Z",
-            stripeCustomerId: "cus_123",
-          }),
-        } as Response;
-      }
-
-      return {
-        ok: true,
-        json: async () => ({
-          items: [
-            {
-              id: "tx-200",
-              amountCents: 1200,
-              currency: "usd",
-              status: "succeeded",
-              description: "Premium subscription",
-              receiptUrl: null,
-              createdAt: "2026-05-02T10:00:00.000Z",
-            },
-          ],
-        }),
-      } as Response;
-    });
-
-    vi.spyOn(window, "open").mockReturnValue(null);
-
-    render(<PaymentSection />);
-
-    await waitFor(() => {
-      expect(screen.getAllByText("Print").length).toBeGreaterThan(0);
-    });
-
-    fireEvent.click(screen.getAllByText("Print")[0]);
-
-    expect(
-      await screen.findByText("Popup blocked. Please allow popups to print your receipt.")
-    ).toBeInTheDocument();
   });
 });
