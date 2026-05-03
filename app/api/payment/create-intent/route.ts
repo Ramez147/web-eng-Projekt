@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getCurrentMembershipContext } from "@/lib/loyalty/user-membership";
 
 // Pure utility functions
 export function isValidAmount(amount: any): boolean {
@@ -59,10 +60,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const membership = await getCurrentMembershipContext();
+    const paymentMetadata = {
+      ...metadata,
+      user_id: membership.userId,
+      organization_id: membership.organizationId,
+    };
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: convertAmountToCents(amount as number),
       currency,
-      metadata: metadata || {},
+      metadata: paymentMetadata,
       automatic_payment_methods: {
         enabled: true,
       },
@@ -79,6 +87,13 @@ export async function POST(request: NextRequest) {
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Unauthorized")) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 401 }
+      );
+    }
+
     console.error("Error creating payment intent:", error);
     return NextResponse.json(
       { error: "Failed to create payment intent" },

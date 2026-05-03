@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         const admin = getAdminSupabaseClient();
 
         // Record in payment_history
-        await admin.from("payment_history").upsert(
+        const { error: paymentHistoryError } = await admin.from("payment_history").upsert(
           {
             user_id: userId,
             organization_id: organizationId,
@@ -111,8 +111,13 @@ export async function POST(request: NextRequest) {
           { onConflict: "stripe_payment_intent_id" },
         );
 
+        if (paymentHistoryError) {
+          console.error("payment_history upsert failed", paymentHistoryError);
+          return NextResponse.json({ error: paymentHistoryError.message }, { status: 500 });
+        }
+
         // Activate subscription for this user
-        await admin.from("subscriptions").upsert(
+        const { error: subscriptionError } = await admin.from("subscriptions").upsert(
           {
             user_id: userId,
             organization_id: organizationId,
@@ -123,6 +128,11 @@ export async function POST(request: NextRequest) {
           },
           { onConflict: "user_id,organization_id" },
         );
+
+        if (subscriptionError) {
+          console.error("subscriptions upsert failed", subscriptionError);
+          return NextResponse.json({ error: subscriptionError.message }, { status: 500 });
+        }
       } else {
         console.log(
           "payment_intent.succeeded: missing user_id or organization_id in metadata, skipping DB write.",
@@ -138,7 +148,7 @@ export async function POST(request: NextRequest) {
 
       if (userId && organizationId) {
         const admin = getAdminSupabaseClient();
-        await admin.from("payment_history").upsert(
+        const { error: paymentHistoryError } = await admin.from("payment_history").upsert(
           {
             user_id: userId,
             organization_id: organizationId,
@@ -150,6 +160,11 @@ export async function POST(request: NextRequest) {
           },
           { onConflict: "stripe_payment_intent_id" },
         );
+
+        if (paymentHistoryError) {
+          console.error("payment_history upsert failed", paymentHistoryError);
+          return NextResponse.json({ error: paymentHistoryError.message }, { status: 500 });
+        }
       }
       break;
     }
