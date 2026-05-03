@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
   Crown,
@@ -12,19 +12,28 @@ import {
 import type { SubscriptionResponse } from "@/app/api/payment/subscription/route";
 import type { PaymentHistoryItem } from "@/app/api/payment/history/route";
 
-function formatCurrency(amountCents: number, currency: string) {
+export function formatCurrency(amountCents: number, currency: string) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency.toUpperCase(),
   }).format(amountCents / 100);
 }
 
-function formatDate(iso: string) {
+export function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   }).format(new Date(iso));
+}
+
+export function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function StatusBadge({ status }: { status: PaymentHistoryItem["status"] }) {
@@ -47,10 +56,13 @@ type PrintReceiptProps = {
   organizationName?: string;
 };
 
-function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
+export function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
   const date = formatDate(item.createdAt);
   const amount = formatCurrency(item.amountCents, item.currency);
-  const org = organizationName ?? "Your Organization";
+  const org = escapeHtml(organizationName ?? "Your Organization");
+  const description = escapeHtml(item.description ?? "Premium subscription");
+  const transactionId = escapeHtml(item.id);
+  const status = escapeHtml(item.status);
   return `
     <html>
       <head>
@@ -71,22 +83,26 @@ function buildReceiptHtml({ item, organizationName }: PrintReceiptProps) {
         <h1>Receipt</h1>
         <p class="meta">${org} &nbsp;·&nbsp; ${date}</p>
         <table>
-          <tr><td>${item.description ?? "Premium subscription"}</td><td>${amount}</td></tr>
+          <tr><td>${description}</td><td>${amount}</td></tr>
+          <tr><td>Status</td><td>${status}</td></tr>
           <tr class="total"><td>Total</td><td>${amount}</td></tr>
         </table>
-        <p class="footer">Transaction ID: ${item.id}</p>
+        <p class="footer">Transaction ID: ${transactionId}</p>
       </body>
     </html>
   `;
 }
 
-function printReceipt(item: PaymentHistoryItem, organizationName?: string) {
+export function printReceipt(item: PaymentHistoryItem, organizationName?: string) {
   const win = window.open("", "_blank", "width=540,height=600");
-  if (!win) return;
+  if (!win) {
+    return false;
+  }
   win.document.write(buildReceiptHtml({ item, organizationName }));
   win.document.close();
   win.focus();
   win.print();
+  return true;
 }
 
 export function PaymentSection() {
@@ -94,41 +110,46 @@ export function PaymentSection() {
   const [history, setHistory] = useState<PaymentHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
   const mounted = useRef(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setPrintError(null);
+    try {
+      const [subRes, histRes] = await Promise.all([
+        fetch("/api/payment/subscription", { credentials: "include" }),
+        fetch("/api/payment/history", { credentials: "include" }),
+      ]);
+
+      if (!mounted.current) return;
+
+      if (!subRes.ok || !histRes.ok) {
+        setError("Failed to load payment data.");
+        return;
+      }
+
+      const subData = (await subRes.json()) as SubscriptionResponse;
+      const histData = (await histRes.json()) as { items: PaymentHistoryItem[] };
+
+      if (!mounted.current) return;
+      setSubscription(subData);
+      setHistory(histData.items ?? []);
+    } catch {
+      if (mounted.current) setError("Could not load payment information.");
+    } finally {
+      if (mounted.current) setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     mounted.current = true;
-
-    async function load() {
-      try {
-        const [subRes, histRes] = await Promise.all([
-          fetch("/api/payment/subscription", { credentials: "include" }),
-          fetch("/api/payment/history", { credentials: "include" }),
-        ]);
-
-        if (!mounted.current) return;
-
-        if (!subRes.ok || !histRes.ok) {
-          setError("Failed to load payment data.");
-          return;
-        }
-
-        const subData = (await subRes.json()) as SubscriptionResponse;
-        const histData = (await histRes.json()) as { items: PaymentHistoryItem[] };
-
-        if (!mounted.current) return;
-        setSubscription(subData);
-        setHistory(histData.items ?? []);
-      } catch {
-        if (mounted.current) setError("Could not load payment information.");
-      } finally {
-        if (mounted.current) setLoading(false);
-      }
-    }
-
     void load();
-    return () => { mounted.current = false; };
-  }, []);
+    return () => {
+      mounted.current = false;
+    };
+  }, [load]);
 
   const isPremium = subscription?.plan === "premium" && subscription.status === "active";
 
@@ -144,9 +165,18 @@ export function PaymentSection() {
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          <XCircle className="h-4 w-4 shrink-0" />
-          {error}
+        <div className="space-y-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="flex items-center gap-2">
+            <XCircle className="h-4 w-4 shrink-0" />
+            {error}
+          </div>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
+          >
+            Retry
+          </button>
         </div>
       ) : loading ? (
         <div className="space-y-4">
@@ -192,6 +222,11 @@ export function PaymentSection() {
                       Unlimited access to basic features
                     </p>
                   ) : null}
+                  <p className="mt-1 text-xs text-slate-300">
+                    {isPremium
+                      ? "You are currently on the paid version."
+                      : "You are currently on the free tier."}
+                  </p>
                 </div>
               </div>
 
@@ -238,10 +273,64 @@ export function PaymentSection() {
           <div className="rounded-2xl border border-slate-800 bg-[#0a0a0a] p-6">
             <h3 className="mb-4 text-base font-semibold text-white">Payment history</h3>
 
+            {printError ? (
+              <div className="mb-4 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                {printError}
+              </div>
+            ) : null}
+
             {history.length === 0 ? (
               <p className="py-8 text-center text-sm text-slate-500">No payments yet.</p>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+                <div className="space-y-3 md:hidden">
+                  {history.map((item) => (
+                    <article
+                      key={item.id}
+                      className="rounded-xl border border-slate-800 bg-[#070707] p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-white">
+                            {item.description ?? "Premium subscription"}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-400">{formatDate(item.createdAt)}</p>
+                        </div>
+                        <StatusBadge status={item.status} />
+                      </div>
+                      <p className="mt-3 text-sm font-semibold text-white">
+                        {formatCurrency(item.amountCents, item.currency)}
+                      </p>
+                      <div className="mt-3 flex items-center justify-end gap-2">
+                        {item.receiptUrl ? (
+                          <a
+                            href={item.receiptUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                          >
+                            Receipt URL
+                          </a>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ok = printReceipt(item);
+                            if (!ok) {
+                              setPrintError("Popup blocked. Please allow popups to print your receipt.");
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                          Print
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="hidden overflow-x-auto md:block">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-800 text-left text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
@@ -266,32 +355,38 @@ export function PaymentSection() {
                           <StatusBadge status={item.status} />
                         </td>
                         <td className="py-3 text-right">
-                          {item.receiptUrl ? (
-                            <a
-                              href={item.receiptUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
-                            >
-                              <Printer className="h-3.5 w-3.5" />
-                              Print
-                            </a>
-                          ) : (
+                          <div className="flex justify-end gap-2">
+                            {item.receiptUrl ? (
+                              <a
+                                href={item.receiptUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                              >
+                                Receipt URL
+                              </a>
+                            ) : null}
                             <button
                               type="button"
-                              onClick={() => printReceipt(item)}
+                              onClick={() => {
+                                const ok = printReceipt(item);
+                                if (!ok) {
+                                  setPrintError("Popup blocked. Please allow popups to print your receipt.");
+                                }
+                              }}
                               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
                             >
                               <Printer className="h-3.5 w-3.5" />
                               Print
                             </button>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </div>
         </>
