@@ -199,7 +199,7 @@ export function PaymentSection() {
                   ) : null}
                   {!isPremium ? (
                     <p className="mt-0.5 text-xs text-slate-400">
-                      Unlimited access to basic features
+                      You are currently on the free tier.
                     </p>
                   ) : null}
                 </div>
