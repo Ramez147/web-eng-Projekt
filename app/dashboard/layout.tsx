@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
   CreditCard,
+  Download,
   LayoutDashboard,
   Menu,
   Settings,
+  Users,
   X,
 } from "lucide-react";
 import { DashboardSettingsPanel } from "@/app/dashboard/settings-panel";
@@ -22,7 +24,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "settings">("dashboard");
   const [activeSection, setActiveSection] = useState<
-    "dashboard" | "analytics" | "payments" | "settings"
+    "dashboard" | "analytics" | "payments" | "customers" | "export" | "settings"
   >("dashboard");
 
   useEffect(() => {
@@ -188,13 +190,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [activeTab]);
 
   const primaryNavItems: Array<{
-    key: "dashboard" | "analytics" | "payments";
+    key: "dashboard" | "analytics" | "payments" | "customers" | "export";
     label: string;
     icon: React.ComponentType<{ className?: string }>;
   }> = [
     { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "payments", label: "Payments", icon: CreditCard },
+    { key: "customers", label: "Customers", icon: Users },
+    { key: "export", label: "Export", icon: Download },
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -212,7 +216,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     });
   };
 
-  const handleNavigate = (target: "dashboard" | "analytics" | "payments" | "settings") => {
+  const handleNavigate = (target: "dashboard" | "analytics" | "payments" | "customers" | "export" | "settings") => {
     setActiveSection(target);
     if (target === "settings") {
       setActiveTab("settings");
@@ -227,10 +231,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       setIsSidebarOpen(false);
     }
 
-    const sectionIdByTarget: Record<"dashboard" | "analytics" | "payments", string> = {
+    const sectionIdByTarget: Record<"dashboard" | "analytics" | "payments" | "customers" | "export", string> = {
       dashboard: "dashboard-top",
       analytics: "dashboard-analytics",
       payments: "dashboard-payments",
+      customers: "dashboard-customers",
+      export: "dashboard-export",
     };
 
     const targetSectionId = sectionIdByTarget[target];

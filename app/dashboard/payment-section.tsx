@@ -144,17 +144,16 @@ export function PaymentSection() {
 
   return (
     <section
-      id="dashboard-payments"
-      className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 md:px-8 md:py-8"
+      className="space-y-6"
     >
       {/* Section header */}
       <div className="flex items-center gap-2">
-        <ReceiptText className="h-5 w-5 text-cyan-300" />
-        <h2 className="text-xl font-semibold text-white">Billing & Payments</h2>
+        <ReceiptText className="h-5 w-5 text-emerald-300" />
+        <h2 className="text-lg font-semibold text-white">Billing & Payments</h2>
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className="flex items-center gap-2 rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           <XCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
@@ -163,23 +162,23 @@ export function PaymentSection() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-24 animate-pulse rounded-2xl border border-slate-800 bg-slate-800/40"
+              className="h-24 animate-pulse rounded-2xl border border-white/8 bg-white/4"
             />
           ))}
         </div>
       ) : (
         <>
           {/* Tier status card */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0a0a0a] p-6">
+          <div className="rounded-2xl border border-white/8 bg-white/4 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.18)]">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 {isPremium ? (
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/10">
-                    <Crown className="h-5 w-5 text-amber-300" />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-300/20 bg-amber-400/10">
+                    <Crown className="h-5 w-5 text-amber-200" />
                   </span>
                 ) : (
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
-                    <Zap className="h-5 w-5 text-slate-400" />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/20">
+                    <Zap className="h-5 w-5 text-slate-300" />
                   </span>
                 )}
                 <div>
@@ -189,7 +188,7 @@ export function PaymentSection() {
                   <p className="mt-0.5 flex items-center gap-2 text-lg font-bold text-white">
                     {isPremium ? "Premium" : "Free"}
                     {isPremium ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      <CheckCircle2 className="h-4 w-4 text-emerald-300" />
                     ) : null}
                   </p>
                   {isPremium && subscription?.currentPeriodEnd ? (
@@ -208,13 +207,13 @@ export function PaymentSection() {
               {!isPremium ? (
                 <a
                   href="/payment"
-                  className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/15 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/25"
+                  className="inline-flex items-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/15"
                 >
                   <Crown className="h-4 w-4" />
                   Upgrade to Premium
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-300">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-sm font-semibold text-emerald-200">
                   <CheckCircle2 className="h-4 w-4" />
                   Active
                 </span>
@@ -222,7 +221,7 @@ export function PaymentSection() {
             </div>
 
             {/* Plan feature comparison */}
-            <div className="mt-5 grid grid-cols-1 gap-3 border-t border-slate-800 pt-5 sm:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-3 border-t border-white/8 pt-5 sm:grid-cols-2">
               {[
                 { label: "Loyalty engine access", free: true, premium: true },
                 { label: "Analytics dashboard", free: true, premium: true },
@@ -233,11 +232,11 @@ export function PaymentSection() {
                 return (
                   <div key={label} className="flex items-center gap-2 text-sm">
                     {included ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" />
                     ) : (
-                      <XCircle className="h-4 w-4 shrink-0 text-slate-600" />
+                      <XCircle className="h-4 w-4 shrink-0 text-slate-500" />
                     )}
-                    <span className={included ? "text-slate-200" : "text-slate-500"}>{label}</span>
+                    <span className={included ? "text-slate-100" : "text-slate-400"}>{label}</span>
                   </div>
                 );
               })}
@@ -245,16 +244,16 @@ export function PaymentSection() {
           </div>
 
           {/* Payment history */}
-          <div className="rounded-2xl border border-slate-800 bg-[#0a0a0a] p-6">
+          <div className="rounded-2xl border border-white/8 bg-white/4 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.18)]">
             <h3 className="mb-4 text-base font-semibold text-white">Payment history</h3>
 
             {history.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No payments yet.</p>
+              <p className="py-8 text-center text-sm text-slate-400">No payments yet.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-800 text-left text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">
+                    <tr className="border-b border-white/8 text-left text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
                       <th className="pb-3 pr-4">Date</th>
                       <th className="pb-3 pr-4">Description</th>
                       <th className="pb-3 pr-4">Amount</th>
@@ -262,11 +261,11 @@ export function PaymentSection() {
                       <th className="pb-3 text-right">Receipt</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
+                  <tbody className="divide-y divide-white/8">
                     {history.map((item) => (
                       <tr key={item.id} className="group">
                         <td className="py-3 pr-4 text-slate-300">{formatDate(item.createdAt)}</td>
-                        <td className="py-3 pr-4 text-slate-200">
+                        <td className="py-3 pr-4 text-slate-100">
                           {item.description ?? "Premium subscription"}
                         </td>
                         <td className="py-3 pr-4 font-medium text-white">
@@ -281,7 +280,7 @@ export function PaymentSection() {
                               href={item.receiptUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/20 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-emerald-300/30 hover:text-emerald-200"
                             >
                               <Printer className="h-3.5 w-3.5" />
                               Print
@@ -290,7 +289,7 @@ export function PaymentSection() {
                             <button
                               type="button"
                               onClick={() => printReceipt(item)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#070707] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-cyan-400/50 hover:text-cyan-200"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/20 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-emerald-300/30 hover:text-emerald-200"
                             >
                               <Printer className="h-3.5 w-3.5" />
                               Print

@@ -135,9 +135,9 @@ export const Footer = () => {
               Datenschutz
             </a>
             <a
-              rel="noreferrer noopener"
+              // rel="noreferrer noopener"
               target="_blank"
-              href="https://www.linkedin.com/in/leopoldo-miranda/"
+              href=""
               className="footer-link"
             >
               Your Team
