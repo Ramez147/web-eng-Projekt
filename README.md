@@ -49,6 +49,23 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 npm run dev
 ```
 
+5. Lokalen Smoke-Test ausfuehren:
+
+Das Projekt enthaelt ein PowerShell-Skript fuer einen lokalen End-to-End-Check gegen `localhost`.
+Es meldet sich zuerst mit einer Supabase-Session an und ruft dann `register`, `collect`, `redeem` und `analytics/overview` auf.
+
+```powershell
+$env:AUTH_EMAIL = 'dein.login@example.com'
+$env:AUTH_PASSWORD = 'dein-passwort'
+.\smoke-test.ps1
+```
+
+Optional kannst du die Werte auch ueber Parameter setzen:
+
+```powershell
+.\smoke-test.ps1 -AuthMode signin -AuthEmail 'dein.login@example.com' -AuthPassword 'dein-passwort'
+```
+
 ## API v1
 
 ### `POST /api/v1/organizations/register`
