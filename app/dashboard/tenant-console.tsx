@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AnalyticsMetricCards } from "./analytics-metric-cards";
+import { PaymentSection } from "./payment-section";
 import { generateApiKey } from "./actions";
 import { AdminRatioControls } from "./admin-ratio-controls";
 
@@ -1155,7 +1156,11 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
                   </div>
                 </article>
 
-                <article className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
+                <article id="dashboard-payments" className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)] scroll-mt-6">
+                  <PaymentSection />
+                </article>
+
+                <article id="dashboard-export" className="rounded-3xl border border-white/8 bg-[#07140d] p-6 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                   <div className="flex items-center gap-2">
                     <Download className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                     <h3 className="text-lg font-semibold text-white">

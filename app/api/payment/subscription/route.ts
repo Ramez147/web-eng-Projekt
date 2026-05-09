@@ -14,18 +14,43 @@ export async function GET() {
     const { userId, organizationId } = await getCurrentMembershipContext();
 
     const admin = getAdminSupabaseClient();
-    const { data, error } = await admin
+    const { data: orgSubscription, error: orgError } = await admin
+      .from("subscriptions")
+      .select("plan, status, current_period_end, stripe_customer_id")
+      .eq("organization_id", organizationId)
+      .eq("plan", "premium")
+      .eq("status", "active")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (orgError) {
+      return NextResponse.json({ error: orgError.message }, { status: 500 });
+    }
+
+    if (orgSubscription) {
+      const response: SubscriptionResponse = {
+        plan: orgSubscription.plan,
+        status: orgSubscription.status,
+        currentPeriodEnd: orgSubscription.current_period_end ?? null,
+        stripeCustomerId: orgSubscription.stripe_customer_id ?? null,
+      };
+
+      return NextResponse.json(response);
+    }
+
+    const { data: personalSubscription, error: personalError } = await admin
       .from("subscriptions")
       .select("plan, status, current_period_end, stripe_customer_id")
       .eq("user_id", userId)
       .eq("organization_id", organizationId)
       .maybeSingle();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (personalError) {
+      return NextResponse.json({ error: personalError.message }, { status: 500 });
     }
 
-    if (!data) {
+    if (!personalSubscription) {
       const response: SubscriptionResponse = {
         plan: "free",
         status: "active",
@@ -36,10 +61,10 @@ export async function GET() {
     }
 
     const response: SubscriptionResponse = {
-      plan: data.plan,
-      status: data.status,
-      currentPeriodEnd: data.current_period_end ?? null,
-      stripeCustomerId: data.stripe_customer_id ?? null,
+      plan: personalSubscription.plan,
+      status: personalSubscription.status,
+      currentPeriodEnd: personalSubscription.current_period_end ?? null,
+      stripeCustomerId: personalSubscription.stripe_customer_id ?? null,
     };
 
     return NextResponse.json(response);

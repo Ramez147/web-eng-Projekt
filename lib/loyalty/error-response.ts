@@ -80,5 +80,14 @@ export function isErrorCategory(
 }
 
 export function jsonError(message: string) {
+  // Log server-side error message for easier debugging of API failures
+  try {
+    // Prefer structured logging when available
+    // eslint-disable-next-line no-console
+    console.error("API error:", message);
+  } catch (e) {
+    // ignore logging errors
+  }
+
   return NextResponse.json({ error: message }, { status: getErrorStatus(message) });
 }

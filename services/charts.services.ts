@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getAdminSupabaseClient } from "@/lib/loyalty/db";
-import { getCurrentMembershipContext } from "@/lib/loyalty/user-membership";
+import { getCurrentMembershipContextOptional } from "@/lib/loyalty/user-membership";
 
 export type XYDataPoint = {
   x: string;
@@ -158,7 +158,13 @@ const getDashboardSourceDataByOrg = unstable_cache(
 );
 
 async function getDashboardSourceData() {
-  const membership = await getCurrentMembershipContext();
+  const membership = await getCurrentMembershipContextOptional();
+  if (!membership) {
+    return {
+      transactions: [] as TransactionRow[],
+      profiles: [] as ProfileRow[],
+    };
+  }
   return getDashboardSourceDataByOrg(membership.organizationId);
 }
 

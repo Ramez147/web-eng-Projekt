@@ -151,6 +151,42 @@ export async function getCurrentMembershipContext(): Promise<MembershipContext> 
   };
 }
 
+/**
+ * Get current membership context or null if user has no organization
+ * @returns MembershipContext or null if user has no organization
+ * @throws Error if user is not signed in
+ */
+export async function getCurrentMembershipContextOptional(): Promise<MembershipContext | null> {
+  const user = await getSignedInUser();
+
+  if (!user) {
+    throw new Error("Unauthorized: please sign in");
+  }
+
+  const admin = getAdminSupabaseClient();
+  const { data: membership, error: membershipError } = await admin
+    .from("memberships")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (membershipError) {
+    throw new Error(membershipError.message);
+  }
+
+  if (!membership) {
+    return null;
+  }
+
+  return {
+    userId: user.id,
+    organizationId: membership.organization_id,
+    role: membership.role as MembershipRole,
+  };
+}
+
 export async function getSignedInUser() {
   const cookieStore = await cookies();
 
