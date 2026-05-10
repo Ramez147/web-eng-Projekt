@@ -195,7 +195,7 @@ catch {
     }
     
     # We'll still need organizationId. For now, use a placeholder that will be handled later
-    # The collect/redeem/analytics calls need organizationId, but if we use the API_KEY it should work 
+    # The collect/redeem/analytics calls need organizationId, but if we use the API_KEY it should work  
     $registerResponse = @{
       organizationId = 'existing'
       apiKey = $apiKey
