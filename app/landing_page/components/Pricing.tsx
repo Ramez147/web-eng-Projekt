@@ -50,7 +50,7 @@ const pricingList: PricingProps[] = [
   {
     title: "Growth",
     popular: 1,
-    price: "49€",
+    price: "29€",
     description: "Der Bestseller für wachsende Marken mit API-Zugang und Automationen.",
     buttonText: "Demo anfragen",
     benefitList: [
