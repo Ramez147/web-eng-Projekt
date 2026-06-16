@@ -44,9 +44,7 @@ export function DashboardOverviewHeader({ timeFrames }: PropsType) {
             <p className="mt-3 inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
               Dashboard-Daten geladen
             </p>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-              Kennzahlen oben, Charts in der Mitte, Verwaltung unten.
-            </p>
+            
 
             <div className="mt-3 inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm">
               <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300">

@@ -236,7 +236,7 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
       if (activityWindow.lastWindow.length === 0) {
         alerts.push({
           tone: "warning",
-          title: `Keine AktivitÃ¤t in ${activityWindow.windowLabel}`,
+          title: `Keine Aktivität in ${activityWindow.windowLabel}`,
           body: "Es gab in diesem Zeitraum keine Transaktionen. PrÃ¼fe Kampagnen, API-Clients oder Segmentierung.",
         });
       } else {
@@ -303,8 +303,8 @@ export function LoyaltyConsole({ compact = false }: { compact?: boolean }) {
     if (analytics.analytics.totalRevenueEur >= 1000 && topCustomers.length > 0) {
       alerts.push({
         tone: "success",
-        title: "VerlÃ¤ssliche Nutzung",
-        body: `Die stÃ¤rksten Kunden treiben bereits ${topCustomers.length} sichtbare Profile im aktuellen Snapshot an.`,
+        title: "Verlässliche Nutzung",
+        body: `Die stärksten Kunden treiben bereits ${topCustomers.length} sichtbare Profile im aktuellen Snapshot an.`,
       });
     }
 
