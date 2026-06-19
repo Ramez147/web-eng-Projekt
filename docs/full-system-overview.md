@@ -68,7 +68,7 @@ Punkte-API (kompatibel):
 - Alte Form mit organizationId im Body:
   - route.ts
   - route.ts
-- Neue Form wie von dir gewünscht:
+- Neue Form wie von dir gewünscht: 
   - route.ts
   - route.ts
 
