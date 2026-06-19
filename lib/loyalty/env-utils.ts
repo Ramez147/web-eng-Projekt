@@ -63,7 +63,13 @@ export function selectPublishableKey(
   defaultKey: string | undefined,
   anonKey: string | undefined
 ): string | undefined {
-  return defaultKey ?? anonKey;
+  const normalizedDefaultKey = defaultKey?.trim();
+  if (normalizedDefaultKey) {
+    return normalizedDefaultKey;
+  }
+
+  const normalizedAnonKey = anonKey?.trim();
+  return normalizedAnonKey || undefined;
 }
 
 export function validateSupabaseEnvVars(env: Record<string, string | undefined>): {

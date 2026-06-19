@@ -244,6 +244,11 @@ describe("Environment Utilities", () => {
       expect(selectPublishableKey("default", "fallback")).toBe("default");
     });
 
+    it("verwendet anonKey wenn defaultKey leer ist", () => {
+      expect(selectPublishableKey("", "anon-key")).toBe("anon-key");
+      expect(selectPublishableKey("   ", "anon-key")).toBe("anon-key");
+    });
+
     it("gibt undefined zurück wenn beide undefined", () => {
       expect(selectPublishableKey(undefined, undefined)).toBeUndefined();
     });

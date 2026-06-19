@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { getRequiredEnv, getSupabasePublishableKey } from "@/lib/loyalty/env";
 
 export async function POST(req: Request) {
   try {
@@ -14,10 +15,8 @@ export async function POST(req: Request) {
     }
 
     const cookieStore = await cookies();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey =
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabaseUrl = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
+    const supabaseKey = getSupabasePublishableKey();
     const supabase = createServerClient(
       supabaseUrl,
       supabaseKey,
@@ -42,7 +41,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ user: data.user, session: data.session });
-  } catch {
+  } catch (error) {
+    console.error("POST /api/auth/signin failed", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -66,6 +66,37 @@ Optional kannst du die Werte auch ueber Parameter setzen:
 .\smoke-test.ps1 -AuthMode signin -AuthEmail 'dein.login@example.com' -AuthPassword 'dein-passwort'
 ```
 
+## Docker
+
+The image uses Next.js standalone output, so production only ships the traced server files, static assets, and runtime dependencies.
+
+Build the image with the public variables that Next.js must inline into the browser bundle:
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY" \
+  --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" \
+  -t loyalty-engine .
+```
+
+Run the container with runtime secrets from `.env.local`:
+
+```bash
+docker run --env-file .env.local -p 3000:3000 loyalty-engine
+```
+
+Or use Compose:
+
+```bash
+cp .env.example .env.local
+# Fill .env.local with the same values configured in Vercel.
+docker compose --env-file .env.local up --build
+```
+
+Rebuild the image whenever a `NEXT_PUBLIC_*` value changes. Server-only secrets such as `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` stay runtime environment variables.
+
 ## API v1
 
 ### `POST /api/v1/organizations/register`
@@ -335,4 +366,3 @@ export default function CheckoutPage() {
 
 - Enterprise Integration Guide: `docs/integration-guide-enterprise.md`
 - Quickstart in 10 Minuten: `docs/quickstart-10min.md`
-
