@@ -1,58 +1,96 @@
-# Loyalty Engine Platform (Next.js + Supabase)
+# 🎯 Loyalty Engine Platform
 
-Mandantenfahige B2B-SaaS-Plattform fur Treueprogramme mit API-first Architektur.
+> **Mandantenfähige B2B-SaaS-Plattform für Treueprogramme mit API-first Architektur**
 
-## Features
+Built with **Next.js** + **Supabase** | Stripe Payments | Multi-Tenant | REST API v1
 
-- Multi-Tenancy uber `organizations`
-- Sichere API-Key Authentifizierung (Hash-Speicherung)
-- Punkte vergeben (`earn`) und einlosen (`redeem`)
-- Auto-Erstellung von Kundenprofilen bei erster API-Transaktion
-- Vollstandige Transaktions-Historie fur Analytics
-- Dashboard-Konsole unter `/dashboard`
+---
 
-## Tech Stack
+## 📑 Table of Contents
 
-- Next.js App Router
-- Supabase (PostgreSQL)
-- REST Route Handlers unter `/api/v1`
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [API Endpoints](#-api-endpoints)
+- [Webhooks](#-webhooks)
+- [Stripe Integration](#-stripe-payment-integration)
+- [Dashboard](#-dashboard)
+- [Docker](#-docker)
+- [Documentation](#-documentation)
 
-## Setup
+---
 
-1. Environment-Variablen setzen (`.env.local`):
+## ✨ Features
+
+- 🏢 **Multi-Tenancy** über `organizations`
+- 🔐 **Sichere API-Key Authentifizierung** (Hash-Speicherung)
+- 💰 **Punkte-Management** – Punkte vergeben (`earn`) und einlösen (`redeem`)
+- 👤 **Auto-Profile** – Kundenprofil wird bei erster API-Transaktion automatisch erstellt
+- 📊 **Transaktions-Historie** – Vollständige Historie für Analytics & Reporting
+- 🎨 **Dashboard** – Verwaltungskonsole unter `/dashboard`
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|-----------|---------|
+| **Next.js** App Router | Frontend & Server-Side Rendering |
+| **Supabase** (PostgreSQL) | Database & Real-time Backend |
+| **REST API v1** | API-first Architecture unter `/api/v1` |
+| **Stripe** | Payment Processing |
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Environment-Variablen einrichten
+
+Erstelle `.env.local` mit folgendem Inhalt:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Stripe
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
-2. Stripe Webhook konfigurieren:
+### 2️⃣ Stripe Webhook konfigurieren
 
-- Gehe zu deinem Stripe Dashboard > Webhooks
-- Erstelle einen neuen Webhook mit URL: `https://yourdomain.com/api/payment/webhook`
-- Wähle Events: `payment_intent.succeeded`
-- Kopiere den Webhook Secret in `STRIPE_WEBHOOK_SECRET`
+1. Gehe zu **Stripe Dashboard** → **Webhooks**
+2. Erstelle einen neuen Webhook:
+   - **Endpoint URL**: `https://yourdomain.com/api/payment/webhook`
+   - **Events**: `payment_intent.succeeded`
+3. Kopiere den **Webhook Secret** in `.env.local` (`STRIPE_WEBHOOK_SECRET`)
 
-3. SQL-Migration in Supabase ausfuhren:
+### 3️⃣ Datenbank-Migrationen ausführen
 
-- Datei: `supabase/migrations/20260410_loyalty_engine.sql`
-- Datei: `supabase/migrations/20260410_memberships.sql`
-- Datei: `supabase/migrations/20260419_contact_requests.sql`
+Führe folgende SQL-Migrations in Supabase aus:
 
-4. Dev-Server starten:
+```sql
+-- In Supabase SQL Editor:
+supabase/migrations/20260410_loyalty_engine.sql
+supabase/migrations/20260410_memberships.sql
+supabase/migrations/20260419_contact_requests.sql
+```
+
+### 4️⃣ Development Server starten
 
 ```bash
+npm install
 npm run dev
 ```
 
-5. Lokalen Smoke-Test ausfuehren:
+Server läuft unter: **http://localhost:3000**
 
-Das Projekt enthaelt ein PowerShell-Skript fuer einen lokalen End-to-End-Check gegen `localhost`.
-Es meldet sich zuerst mit einer Supabase-Session an und ruft dann `register`, `collect`, `redeem` und `analytics/overview` auf.
+### 5️⃣ Smoke-Test (Optional)
+
+Das Projekt enthält ein PowerShell-Skript für lokale End-to-End-Tests:
 
 ```powershell
 $env:AUTH_EMAIL = 'dein.login@example.com'
@@ -60,168 +98,209 @@ $env:AUTH_PASSWORD = 'dein-passwort'
 .\smoke-test.ps1
 ```
 
-Optional kannst du die Werte auch ueber Parameter setzen:
+Oder mit Parametern:
 
 ```powershell
-.\smoke-test.ps1 -AuthMode signin -AuthEmail 'dein.login@example.com' -AuthPassword 'dein-passwort'
+.\smoke-test.ps1 -AuthEmail 'dein.login@example.com' -AuthPassword 'dein-passwort'
 ```
 
-## Docker
+Das Skript führt folgende Calls aus:
+- `register` – Neue Organization registrieren
+- `collect` – Punkte sammeln
+- `redeem` – Punkte einlösen
+- `analytics/overview` – Analytics abrufen
 
-The image uses Next.js standalone output, so production only ships the traced server files, static assets, and runtime dependencies.
+---
 
-Build the image with the public variables that Next.js must inline into the browser bundle:
+## 📡 API Endpoints
 
-```bash
-docker build \
-  --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
-  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
-  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY" \
-  --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" \
-  -t loyalty-engine .
-```
+### Organization Management
 
-Run the container with runtime secrets from `.env.local`:
+#### `POST /api/v1/organizations/register`
 
-```bash
-docker run --env-file .env.local -p 3000:3000 loyalty-engine
-```
+Registriert eine neue Organization und gibt den **API-Key einmalig** in Klartext zurück.
 
-Or use Compose:
-
-```bash
-cp .env.example .env.local
-# Fill .env.local with the same values configured in Vercel.
-docker compose --env-file .env.local up --build
-```
-
-Rebuild the image whenever a `NEXT_PUBLIC_*` value changes. Server-only secrets such as `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` stay runtime environment variables.
-
-## API v1
-
-### `POST /api/v1/organizations/register`
-
-Registriert ein Unternehmen und gibt den Klartext-API-Key genau einmal zuruck.
-
-Request:
-
+**Request:**
 ```json
 {
-	"name": "ACME GmbH",
-	"pointsRatio": 10
+  "name": "ACME GmbH",
+  "pointsRatio": 10
 }
 ```
-
-### `PATCH /api/v1/organizations/{organizationId}/ratio`
-
-Aktualisiert die Punkte-Ratio.
-
-Header:
-
-- `x-api-key: ly_live_...`
-
-Request:
-
-```json
-{
-	"pointsRatio": 12
-}
-```
-
-### `POST /api/v1/points/earn`
-
-Rechnet EUR in Punkte um und schreibt sie dem Profil gut.
-
-Header:
-
-- `x-api-key: ly_live_...`
-
-Request:
-
-```json
-{
-	"organizationId": "uuid",
-	"externalCustomerId": "customer-123",
-	"amountEur": 59.9,
-	"metadata": {
-		"orderId": "order-999"
-	}
-}
-```
-
-### `POST /api/v1/points/redeem`
-
-Prufung und Einlosung von Punkten. Bei zu wenig Punkten kommt `409`.
-
-Header:
-
-- `x-api-key: ly_live_...`
-
-### `POST /api/v1/collect`
-
-Alternative API-first Route fuer Punkteeingang. Die Organization wird aus dem `x-api-key` ermittelt.
-
-Request-Beispiel:
-
-```json
-{
-	"externalCustomerId": "customer-123",
-	"amountEur": 59.9,
-	"metadata": {
-		"orderId": "order-999",
-		"channel": "shopify"
-	}
-}
-```
-
-### `POST /api/v1/redeem`
-
-Alternative API-first Route fuer Einloesung. Die Organization wird aus dem `x-api-key` ermittelt.
-
-Request:
-
-```json
-{
-	"organizationId": "uuid",
-	"externalCustomerId": "customer-123",
-	"points": 300,
-	"metadata": {
-		"rewardCode": "VIP-REWARD"
-	}
-}
-```
-
-### `GET /api/v1/analytics/overview?organizationId={uuid}`
-
-Liefert:
-
-- Anzahl Kundenprofile
-- Gesamtumsatz
-- Punkte-Historie pro Tag
-- letzte Transaktionen
-
-Header:
-
-- `x-api-key: ly_live_...`
-
-### `GET /api/v1/history?externalCustomerId={customerId}`
-
-Ruft die komplette Transaktionshistorie für einen spezifischen Endkunden ab.
-
-**Authentifizierung:** Unterstützt zwei Methoden
-
-1. **Public API (API-Key):**
-   ```bash
-   curl -X GET "http://localhost:3000/api/v1/history?externalCustomerId=customer-123" \
-     -H "x-api-key: ly_live_..."
-   ```
-
-2. **Dashboard (Session-Cookie):**
-   - Automatisch für angemeldete Dashboard-Nutzer
-   - Filtert nach Organization des aktuellen Users
 
 **Response:**
+```json
+{
+  "organizationId": "uuid",
+  "apiKey": "ly_live_..."
+}
+```
 
+---
+
+#### `PATCH /api/v1/organizations/{organizationId}/ratio`
+
+Aktualisiert die Punkte-Ratio (nur für Admin).
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Request:**
+```json
+{
+  "pointsRatio": 12
+}
+```
+
+---
+
+### Points Management
+
+#### `POST /api/v1/points/earn`
+
+Rechnet EUR-Betrag in Punkte um und schreibt diese dem Kundenprofil gut.
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Request:**
+```json
+{
+  "organizationId": "uuid",
+  "externalCustomerId": "customer-123",
+  "amountEur": 59.90,
+  "metadata": {
+    "orderId": "order-999"
+  }
+}
+```
+
+---
+
+#### `POST /api/v1/points/redeem`
+
+Prüft verfügbare Punkte und löst diese ein. Bei zu wenig Punkten → `409 Conflict`.
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Request:**
+```json
+{
+  "organizationId": "uuid",
+  "externalCustomerId": "customer-123",
+  "points": 300,
+  "metadata": {
+    "rewardCode": "VIP-REWARD"
+  }
+}
+```
+
+---
+
+#### `POST /api/v1/collect` ⭐
+
+**Alternative Route** – Organization wird automatisch aus `x-api-key` ermittelt.
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Request:**
+```json
+{
+  "externalCustomerId": "customer-123",
+  "amountEur": 59.90,
+  "metadata": {
+    "orderId": "order-999",
+    "channel": "shopify"
+  }
+}
+```
+
+---
+
+#### `POST /api/v1/redeem` ⭐
+
+**Alternative Route** – Organization wird automatisch aus `x-api-key` ermittelt.
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Request:**
+```json
+{
+  "externalCustomerId": "customer-123",
+  "points": 300,
+  "metadata": {
+    "rewardCode": "VIP-REWARD"
+  }
+}
+```
+
+---
+
+### Analytics & History
+
+#### `GET /api/v1/analytics/overview`
+
+Liefert KPIs für eine Organization.
+
+**Headers:**
+```
+x-api-key: ly_live_...
+```
+
+**Query Parameter:**
+```
+organizationId=uuid
+```
+
+**Response:**
+```json
+{
+  "customerCount": 1250,
+  "totalRevenueEur": 45230.50,
+  "pointsPerDay": [
+    { "date": "2026-04-28", "points": 15000 }
+  ],
+  "recentTransactions": [...]
+}
+```
+
+---
+
+#### `GET /api/v1/history`
+
+Ruft die komplette Transaktionshistorie eines Kunden ab.
+
+**Query Parameter:**
+```
+externalCustomerId=customer-123
+```
+
+**Authentifizierung – zwei Optionen:**
+
+**Option 1: API-Key (Public API)**
+```bash
+curl -X GET "http://localhost:3000/api/v1/history?externalCustomerId=customer-123" \
+  -H "x-api-key: ly_live_..."
+```
+
+**Option 2: Session-Cookie (Dashboard)**
+- Automatisch für angemeldete Dashboard-User
+- Filtert nach Organization des angemeldeten Users
+
+**Response:**
 ```json
 {
   "organizationId": "uuid",
@@ -239,87 +318,87 @@ Ruft die komplette Transaktionshistorie für einen spezifischen Endkunden ab.
       "points": 150,
       "eurAmount": 10.99,
       "createdAt": "2026-04-28T15:30:00Z",
-      "metadata": {"orderId": "order-1001"}
+      "metadata": { "orderId": "order-1001" }
     }
   ]
 }
 ```
 
-**Fehlercodes:**
+**Error Codes:**
 
-- `400` - `externalCustomerId` fehlt oder leer
-- `401` - Kein API-Key und kein Session-Cookie
-- `403` - Membership nicht gefunden für angemeldeten User
-- `404` - Kunde existiert nicht in dieser Organisation
+| Status | Beschreibung |
+|--------|-------------|
+| `400` | `externalCustomerId` fehlt oder leer |
+| `401` | Kein API-Key und kein Session-Cookie |
+| `403` | Membership nicht gefunden für User |
+| `404` | Kunde existiert nicht in dieser Organization |
 
-### Webhooks im Projekt
+---
 
-Dieses Projekt verwendet Webhooks an der Stelle, an der ein externer Dienst ein Ereignis nicht direkt im synchronen API-Call abschließt, sondern später asynchron meldet. Der aktuell implementierte Webhook ist der Stripe-Payment-Webhook unter `POST /api/payment/webhook`.
+## 🪝 Webhooks
 
-#### Wie der Stripe-Webhook funktioniert
+### Stripe Webhook Integration
 
-1. Stripe sendet ein Ereignis als HTTP-`POST` an die Webhook-Route.
-2. Die Route liest den Roh-Request-Body als Text ein, weil Stripe die Signatur über den exakten Payload prüft.
-3. Aus dem Header `stripe-signature` wird die Signatur gelesen.
-4. Mit `STRIPE_WEBHOOK_SECRET` und `stripe.webhooks.constructEvent(...)` wird das Event kryptografisch verifiziert.
-5. Nur Events mit bekannter Struktur und bekanntem Typ werden weiterverarbeitet.
-6. Für unterstützte Events werden die relevanten Daten extrahiert und protokolliert.
-7. Danach antwortet die Route mit `200` und `{ received: true }`, damit Stripe das Event als zugestellt betrachtet.
+Der Stripe-Webhook verarbeitet Payment-Events asynchron:
+
+**Endpoint:** `POST /api/payment/webhook`
+
+#### Ablauf
+
+1. Stripe sendet HTTP-`POST` mit signiertem Event
+2. Route liest Raw-Body (Stripe validiert Signatur über exakten Payload)
+3. Signatur aus Header `stripe-signature` wird gelesen
+4. Mit `STRIPE_WEBHOOK_SECRET` wird Event kryptografisch verifiziert
+5. Nur bekannte Event-Typen werden verarbeitet
+6. Daten extrahiert und protokolliert
+7. Route antwortet mit `200 { received: true }`
 
 #### Unterstützte Event-Typen
 
-Die aktuelle Implementierung verarbeitet diese Stripe-Events:
+```
+✅ payment_intent.succeeded
+✅ payment_intent.failed
+✅ payment_method.attached
+✅ charge.succeeded
+✅ charge.failed
+```
 
-- `payment_intent.succeeded`
-- `payment_intent.failed`
-- `payment_method.attached`
-- `charge.succeeded`
-- `charge.failed`
+#### Security Best Practices
 
-In der Praxis werden derzeit vor allem `payment_intent.succeeded` und `payment_method.attached` in der Route aktiv behandelt. Andere valide Event-Typen werden akzeptiert, aber nur als empfangen bestätigt.
+- ✓ Stripe-Signaturprüfung ist erforderlich (keine freien JSON-Eingaben)
+- ✓ Endpoint antwortet schnell (`200` + `{ received: true }`)
+- ✓ Geschäftslogik läuft nur nach erfolgreicher Verifikation
+- ✓ Idempotent implementiert (Stripe sendet ggf. Events erneut)
 
-#### Sicherheits- und Verarbeitungsregeln
+#### Hilfsfunktionen
 
-- Der Webhook verlässt sich nicht auf freie JSON-Eingaben, sondern auf die Stripe-Signaturprüfung.
-- Der Endpoint ist absichtlich schlank gehalten und soll schnell antworten.
-- Geschäftslogik wie Datenbank-Updates, Benachrichtigungen oder Folgeprozesse sollte erst nach erfolgreicher Verifikation ausgelöst werden.
-- Webhooks müssen idempotent verarbeitet werden, weil Anbieter wie Stripe Ereignisse im Fehlerfall erneut senden können.
+Die Webhook-Route verwendet kleine, testbare Funktionen:
 
-#### Eingesetzte Hilfsfunktionen
-
-Die Webhook-Route ist in kleine, testbare Hilfsfunktionen aufgeteilt:
-
-- `isValidEventType(...)` prüft, ob der Event-Typ verarbeitet werden soll.
-- `isValidStripeEvent(...)` prüft die Grundstruktur des Stripe-Events.
-- `isValidWebhookHeaders(...)` liest den Signatur-Header aus.
-- `shouldProcessEvent(...)` kombiniert Struktur- und Typprüfung.
-- `extractPaymentIntentFromEvent(...)` liest Payment-Intent-Daten aus.
-- `extractPaymentMethodFromEvent(...)` liest Payment-Method-Daten aus.
-
-Diese Aufteilung macht die Route besser testbar und reduziert die Logik im HTTP-Handler selbst.
+- `isValidEventType(...)` – Prüft Event-Typ
+- `isValidStripeEvent(...)` – Prüft Event-Struktur
+- `isValidWebhookHeaders(...)` – Liest Signatur-Header
+- `shouldProcessEvent(...)` – Kombiniert Prüfungen
+- `extractPaymentIntentFromEvent(...)` – Extrahiert Payment-Intent
+- `extractPaymentMethodFromEvent(...)` – Extrahiert Payment-Method
 
 #### Konfiguration
 
-Für den Webhook sind diese Umgebungsvariablen relevant:
+**Erforderliche Umgebungsvariablen:**
 
-- `STRIPE_SECRET_KEY` für den Stripe-Client
-- `STRIPE_WEBHOOK_SECRET` für die Signaturprüfung des Webhooks
+```env
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
 
-#### Aktueller Status
+---
 
-Der Stripe-Webhook ist implementiert und testabgedeckt. Die im Projekt erwähnten Loyalty-Webhooks für externe Shops, zum Beispiel `points.earned`, `points.redeemed` oder `customer.profile.created`, sind als Integrationsidee beschrieben, aber in der gezeigten Route noch nicht als eigener Auslieferungsmechanismus umgesetzt.
+## 💳 Stripe Payment Integration
 
-#### Wann man Webhooks hier einsetzt
+Die Plattform unterstützt Zahlungen über **Stripe** für Treueprogramm-Funktionen.
 
-Webhooks sind im Projekt sinnvoll, wenn ein externer Dienst nur über ein Ereignis informiert werden soll, nachdem ein Hintergrundprozess oder ein Zahlungsdienst etwas abgeschlossen hat. Der eigentliche API-Call bleibt dabei synchron, während der Webhook die spätere Benachrichtigung übernimmt.
+### StripePayment Komponente
 
-## Stripe Payment Integration
-
-Die Plattform unterstützt Zahlungen über Stripe für Treueprogramm-Funktionen.
-
-### Verwendung der Payment-Komponente
-
-Importiere die `StripePayment` Komponente in deine Seite:
+Verwende die `StripePayment` Komponente in deinen Seiten:
 
 ```tsx
 import { StripePayment } from "@/components/stripe-payment";
@@ -330,39 +409,94 @@ export default function CheckoutPage() {
       <h1>Checkout</h1>
       <StripePayment
         amount={29.99}
-        onSuccess={() => console.log("Payment successful")}
-        onError={(error) => console.error(error)}
+        onSuccess={() => console.log("✅ Payment successful")}
+        onError={(error) => console.error("❌", error)}
       />
     </div>
   );
 }
 ```
 
-### API Endpoints
+### Payment API Endpoints
 
-- `POST /api/payment/create-intent` - Erstellt einen Payment Intent
-- `POST /api/payment/webhook` - Webhook für Stripe Events
+| Endpoint | Beschreibung |
+|----------|-------------|
+| `POST /api/payment/create-intent` | Erstellt einen Payment Intent |
+| `POST /api/payment/webhook` | Webhook für Stripe Events |
 
-## Dashboard
+---
 
-`/dashboard` bietet:
+## 📊 Dashboard
 
-- Registrierung neuer Tenants
-- Membership-basierte Datenisolation je eingeloggtem User
-- Profile-Management je Organization
-- Ratio-Update (nur `admin` Role)
-- Analytics-Ansicht (KPI, Punkte-Historie, Profile)
+Zugang unter: **http://localhost:3000/dashboard**
 
-## API Collections
+### Features
 
-- Postman: `collections/loyalty-engine.postman_collection.json`
-- Insomnia: `collections/loyalty-engine.insomnia.json`
+- 🏢 **Multi-Tenant Setup** – Neue Organizations registrieren
+- 🔒 **Membership-basierte Datenisolation** – Daten nach User & Organization
+- 👥 **Profile Management** – Customer-Profile pro Organization verwalten
+- ⚙️ **Settings** – Punkte-Ratio updaten (nur Admin)
+- 📈 **Analytics** – KPIs, Punkte-Historie, Customer-Profiles
 
-## OpenAPI
+---
 
-- OpenAPI 3.1 spec: `docs/openapi.yaml`
+## 🐳 Docker
 
-## Integration Guide
+### Development
 
-- Enterprise Integration Guide: `docs/integration-guide-enterprise.md`
-- Quickstart in 10 Minuten: `docs/quickstart-10min.md`
+```bash
+# Build Image mit PUBLIC-Variablen
+docker build \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+  --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY" \
+  -t loyalty-engine .
+
+# Run Container mit RUNTIME-Secrets
+docker run --env-file .env.local -p 3000:3000 loyalty-engine
+```
+
+### Production (Docker Compose)
+
+```bash
+# .env.local vorbereiten
+cp .env.example .env.local
+# Werte aus Vercel konfigurieren (siehe Setup Schritt 1)
+
+# Starten
+docker compose --env-file .env.local up --build
+```
+
+**Hinweis:** Rebuild Image, wenn `NEXT_PUBLIC_*` Werte ändern.
+Server-only Secrets (`SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, etc.) bleiben Runtime-Variablen.
+
+---
+
+## 📚 Documentation
+
+### API Collections
+
+- 📮 **Postman**: `collections/loyalty-engine.postman_collection.json`
+- 🪲 **Insomnia**: `collections/loyalty-engine.insomnia.json`
+
+### OpenAPI Specification
+
+- 📖 **OpenAPI 3.1**: `docs/openapi.yaml`
+
+### Guides
+
+- 🚀 **Quickstart (10 Minuten)**: `docs/quickstart-10min.md`
+- 🏢 **Enterprise Integration**: `docs/integration-guide-enterprise.md`
+
+---
+
+## 📝 License
+
+This project is part of the Web Engineering Course (WI-2024).
+
+---
+
+## 💡 Support
+
+Bei Fragen oder Issues: [GitHub Issues](../../issues)
+
