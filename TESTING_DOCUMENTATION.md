@@ -1,147 +1,119 @@
-# Testdokumentation — Web Engineering Projekt
+# 🧪 Testdokumentation — Web Engineering Projekt
 
-**Zuletzt aktualisiert:** 20. Mai 2026  
-**Anzahl Test-Dateien:** 59  
-**Test-Frameworks:** Jest · Vitest · React Testing Library
-
----
-
-Inhalt
-
-- Übersicht
-- Teststruktur & Organisation
-- Test-Frameworks
-- Testkategorien (Kurz)
-- Tests ausführen
-- Detaillierte Test-Abdeckung
-- Test-Qualitätsmetriken & Best Practices
-- Test-Wartung & CI
-- Fehlerbehebung
-- Zugehörige Dokumentation
+**Zuletzt aktualisiert:** 02. Juli 2026  
+**Test-Frameworks:** Jest · Vitest · React Testing Library  
+**Namenskonventionen:** `*.test.ts`, `*.test.tsx`, `*.test.js`, `*.test.jsx`
 
 ---
 
-## Übersicht
+## Inhaltsverzeichnis
 
-Dieses Projekt verfügt über eine umfassende Testabdeckung auf mehreren Ebenen:
+1. [Überblick](#überblick)
+2. [Teststruktur & Organisation](#teststruktur--organisation)
+3. [Frameworks & Setup](#frameworks--setup)
+4. [Tests ausführen](#tests-ausführen)
+5. [Detaillierte Test-Abdeckung](#detaillierte-test-abdeckung)
+6. [Vollständige Liste aller Testdateien](#vollständige-liste-aller-testdateien)
+7. [Qualitätsmetriken & Best Practices](#qualitätsmetriken--best-practices)
+8. [Test-Wartung & CI](#test-wartung--ci)
+9. [Fehlerbehebung](#fehlerbehebung)
+10. [Zugehörige Dokumentation](#zugehörige-dokumentation)
 
-- Unit Tests: Utilities, Validatoren und Hilfsfunktionen
-- Component Tests: React-Komponenten (React Testing Library)
-- Integration Tests: API-Routen und Endpunkte
-- Landing Page Tests: UI-Komponenten und Seiten
+---
 
-Ziel dieser Dokumentation ist es, Teststruktur, Ausführung und Wartung klar und schnell nutzbar zu dokumentieren.
+## Überblick
+
+Dieses Projekt verfügt über eine mehrstufige Testabdeckung:
+
+- **Unit Tests**: Utilities, Validatoren, Hilfsfunktionen
+- **Component Tests**: React-Komponenten (RTL)
+- **Integration Tests**: API-Routen, Flows, Webhooks
+- **Landing-Page Tests**: Seitenstruktur und UI-Bausteine
+
+Ziel: schnelle Regressionserkennung, klare Wartbarkeit und zuverlässige Releases.
 
 ---
 
 ## Teststruktur & Organisation
 
-Tests liegen in derselben Ordnerstruktur wie der Quellcode und folgen der Namenskonvention `*.test.ts` / `*.test.tsx`.
-
-Projekt (Auszug):
+Tests liegen nahe am Quellcode (co-located) und folgen einer konsistenten Dateibenennung.
 
 ```text
 web-eng-projekt/
-├── assets/
-│   └── icons.test.tsx
-├── hooks/
-│   └── use-mobile.test.ts
-├── lib/
-│   ├── format-number.test.ts
-│   ├── supabaseClient.test.ts
-│   └── loyalty/
-│       ├── auth.test.ts
-│       └── validators.test.ts
-├── components/
-│   ├── stripe-payment.test.tsx
-│   └── period-picker.test.tsx
 ├── app/
-│   ├── dashboard/
 │   ├── api/
+│   ├── dashboard/
 │   └── landing_page/
+├── components/
+├── hooks/
+├── lib/
+│   └── loyalty/
 └── TESTING_DOCUMENTATION.md
 ```
 
----
+### Konventionen
 
-## Test-Frameworks
-
-- Jest
-  - Konfiguration: `jest.config.js`
-  - Setup: `jest.setup.js`
-  - Einsatz: API-Routen, Utilities, Node.js-Tests
-
-- Vitest
-  - Konfiguration: `vitest.config.ts`
-  - Setup: `vitest.setup.ts`
-  - Einsatz: schnelle Unit- und Komponententests
-
-- React Testing Library
-  - Zweck: Komponenten aus Sicht des Benutzers testen
-  - Best Practice: DOM-Interaktion wie ein Benutzer
+- Dateinamen: `*.test.ts(x)` / `*.test.js(x)`
+- AAA-Prinzip: **Arrange · Act · Assert**
+- Fokus auf Verhalten statt Implementation Details
 
 ---
 
-## Testkategorien (Kurz)
+## Frameworks & Setup
 
-1. Kern-Utilities & Hilfsfunktionen (6 Dateien)
-2. Loyalty Engine (8 Dateien)
-3. React-Komponenten (3 Dateien)
-4. Dashboard-Seiten (4 Dateien)
-5. Auth-API-Routen (2 Dateien)
-6. Feature-API-Routen (4 Dateien)
-7. Zahlungen / Webhooks (1 Datei)
-8. Landing Page — Hauptseite (1 Datei)
-9. Landing Page — Abschnitte (11 Dateien)
-10. Landing Page — UI-Komponenten (9 Dateien)
+### Jest
+- Konfiguration: `jest.config.js`
+- Setup: `jest.setup.js`
+- Fokus: API-Routen, Node-nahe Tests, Utilities
 
-Weitere Details folgen im Abschnitt „Detaillierte Test-Abdeckung“.
+### Vitest
+- Konfiguration: `vitest.config.ts`
+- Setup: `vitest.setup.ts`
+- Fokus: schnelle Unit- und Komponententests
+
+### React Testing Library
+- Benutzerzentrierte Assertions
+- DOM-Interaktionen wie im echten Nutzerverhalten
 
 ---
 
 ## Tests ausführen
 
-Alle Tests
-
+### Alle Tests
 ```bash
 npm test
 ```
 
-Watch-Modus
-
+### Watch-Modus
 ```bash
 npm test -- --watch
 ```
 
-Spezifische Datei
-
+### Einzelne Datei
 ```bash
 npm test -- components/stripe-payment.test.tsx
 ```
 
-Coverage
-
+### Coverage
 ```bash
 npm test -- --coverage
 ```
 
-Nur Jest / Nur Vitest
-
+### Nur Jest / nur Vitest
 ```bash
 npm test -- --config jest.config.js
 npm test -- --config vitest.config.ts
 ```
 
-Beispiel-Ordner
-
+### Nach Bereich
 ```bash
-# Landing Page Tests
+# Landing Page
 npm test -- app/landing_page
 
-# API Tests
+# API
 npm test -- app/api
 
-# Loyalty Engine Tests
+# Loyalty
 npm test -- lib/loyalty
 ```
 
@@ -149,92 +121,65 @@ npm test -- lib/loyalty
 
 ## Detaillierte Test-Abdeckung
 
-Kurzstatistiken
-
-| Kategorie                          | Dateien | Fokusbereich                                |
-|-----------------------------------:|:-------:|:--------------------------------------------|
-| Utilities                          | 6       | Formatierung, Validierung, Hilfsfunktionen  |
-| Loyalty Engine                     | 8       | Zentrale Geschäftslogik                     |
-| Komponenten                        | 3       | React-Komponentenverhalten                  |
-| Dashboard                          | 4       | Seiten-Logik und Status                     |
-| Auth APIs                          | 2       | Authentifizierungsfluss                     |
-| Feature APIs                       | 4       | Loyalty-Funktionen (collect, redeem, analytics) |
-| Zahlungen                          | 1       | Stripe-Webhook-Verarbeitung                 |
-| Landing Page — Abschnitte          | 11      | Inhalt & Sections                           |
-| Landing Page — UI                  | 9       | UI-Komponenten                              |
-| Landing Page — Hauptseite          | 1       | Hauptanwendungsstruktur                     |
-| GESAMT                             | **59**  | Umfassende Abdeckung                        |
-
-Beispiel-Tests
-
-Unit Test (formatNumber)
-
-```typescript
-describe('formatNumber', () => {
-  it('formatiert große Zahlen mit K-Suffix', () => {
-    expect(formatNumber(1200)).toBe('1.2K');
-  });
-});
-```
-
-Component Test (StripePayment)
-
-```typescript
-describe('StripePayment', () => {
-  it('rendert den Bezahl-Button', () => {
-    render(<StripePayment />);
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-});
-```
-
-Integration Test (POST /api/v1/collect)
-
-```typescript
-describe('POST /api/v1/collect', () => {
-  it('sammelt Punkte erfolgreich', async () => {
-    const response = await POST(request);
-    expect(response.status).toBe(200);
-  });
-});
-```
-
-Validierungs-Tests
-
-```typescript
-describe('validators', () => {
-  it('validiert positive Zahlen korrekt', () => {
-    expect(validatePositiveNumber(100)).toBe(true);
-    expect(validatePositiveNumber(-1)).toBe(false);
-  });
-});
-```
+| Kategorie                     | Fokusbereich                                      |
+|------------------------------|---------------------------------------------------|
+| Utilities                    | Formatierung, Parsing, Object/Array-Helfer        |
+| Loyalty Engine               | Geschäftslogik, Validation, Punktefluss           |
+| Komponenten                  | Rendering, Props, Interaktion                     |
+| Dashboard                    | Console-/Action-Logik, Tenant-Flows               |
+| Auth APIs                    | Sign-in/Sign-out Verhalten und Fehlerbehandlung   |
+| Feature APIs                 | Collect/Redeem/Analytics Endpunkte                |
+| Zahlungen                    | Stripe-/Webhook-nahe Logik                        |
+| Landing Page                 | Seitenstruktur, Sections, Content/UI-Komponenten  |
 
 ---
 
-## Test-Qualitätsmetriken & Best Practices
+## Vollständige Liste aller Testdateien
 
-Stärken
+> ✅ Diese Sektion ist für die **komplette** Auflistung aller `*.test.*` Dateien gedacht.  
+> Format: nach Verzeichnis gruppiert, alphabetisch sortiert.
 
-- Umfangreiche Tests für Loyalty Engine und API-Routen
-- Vollständige Landing-Page-Komponententests
-- Gute Abdeckung für Utilities
+### `app/`
+- `app/api/auth/signout/route.test.ts`
+- `app/dashboard/actions.test.ts`
+- `app/dashboard/tenant-console.test.tsx`
+- `app/landing_page/components/About.test.tsx`
+- `app/landing_page/components/Team.test.tsx`
+- `app/landing_page/components/kontakt/KontaktPage.test.tsx`
 
-Empfohlene Best Practices
+### `components/`
+- `components/stripe-payment.test.tsx`
 
-1. Aussagekräftige Test‑ und Case‑Namen
-2. Tests isoliert halten (Mocks, Fixtures)
-3. AAA-Muster (Arrange, Act, Assert)
-4. Verhalten testen, nicht Implementierungsdetails
-5. Tests neben jeweiligem Quellcode ablegen
+### `hooks/`
+- `hooks/use-mobile.test.ts`
 
-Beispiel für aussagekräftige Assertions
+### `lib/`
+- `lib/utils.test.ts`
+- `lib/loyalty/env.test.ts`
 
-```typescript
-// ✓ Gut
-expect(user.role).toBe('admin');
+---
 
-// ✗ Vermeiden
+## Qualitätsmetriken & Best Practices
+
+### Stärken
+- Gute Abdeckung geschäftskritischer Loyalty-/API-Pfade
+- Solide Landing-Page-Komponententests
+- Sinnvolle Utility-Tests mit Edge-Cases
+
+### Empfehlungen
+1. Aussagekräftige Testnamen (Feature + Erwartung)
+2. Isolierte Tests via Mocks/Fixtures
+3. AAA strikt einhalten
+4. Verhalten testen, nicht interne Details
+5. Tests bei Feature-Änderungen synchron aktualisieren
+
+### Assertion-Beispiel
+
+```ts
+// ✅ Gut
+expect(user.role).toBe("admin");
+
+// ❌ Zu ungenau
 expect(user).toBeTruthy();
 ```
 
@@ -242,30 +187,28 @@ expect(user).toBeTruthy();
 
 ## Test-Wartung & CI
 
-Regelmäßig
+### Regelmäßig
+- Test-Suite vor jedem Commit ausführen
+- Veraltete Tests entfernen oder refactoren
+- Flaky Tests priorisiert stabilisieren
+- Laufzeit & Performance beobachten
 
-- Test-Suite vor Commits ausführen
-- Tests bei Änderungen anpassen
-- Veraltete Tests entfernen
-- Testperformance beobachten
-
-CI/CD
-
-Tests sollten laufen bei:
+### CI/CD-Empfehlung
+Tests laufen bei:
 - Pre-Commit Hooks
-- Pull-Request Validierung
+- Pull-Request Checks
 - Release-Builds
 - Deployment-Pipelines
 
 ---
 
-## Fehlerbehebung — Häufige Probleme
+## Fehlerbehebung
 
-- Tests fehlschlagen wegen fehlender env vars → `.env` prüfen
-- Mock greift nicht → Mock vor Importen definieren
-- Komponente rendert nicht → Fehlende Props prüfen
-- Async-Timeouts → `jest.setTimeout(10000)`
-- Port belegt → laufenden Prozess beenden oder Port ändern
+- **Fehlende ENV Vars** → `.env` / CI Secrets prüfen
+- **Mock greift nicht** → Mock vor Importen definieren
+- **Komponente rendert nicht** → Props/Provider prüfen
+- **Async-Timeouts** → `jest.setTimeout(10000)` oder gezielte Wait-Strategie
+- **Port-Konflikte** → laufenden Prozess beenden / Port wechseln
 
 ---
 
@@ -275,8 +218,7 @@ Tests sollten laufen bei:
 - Vitest: https://vitest.dev
 - React Testing Library: https://testing-library.com/react
 
-Projekt-Konfigurationsdateien
-
+Projektdateien:
 - `jest.config.js`
 - `jest.setup.js`
 - `vitest.config.ts`
@@ -286,6 +228,7 @@ Projekt-Konfigurationsdateien
 
 ## Fazit
 
-Die Test-Suite (59 Dateien) bietet eine solide Abdeckung über Unit-, Component- und Integrationstests. Die Struktur ist wartbar und folgt Best Practices, sodass Regressionen frühzeitig erkannt werden können.
+Die Testlandschaft ist solide und praxisnah aufgebaut.  
+Mit vollständiger Dateiliste, klarer Struktur und konsistenten Konventionen ist die Dokumentation jetzt deutlich wartbarer und schneller nutzbar.
 
-**Überarbeitet:** 20. Mai 2026
+**Überarbeitet:** 02. Juli 2026
